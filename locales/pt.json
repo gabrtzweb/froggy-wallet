@@ -22,10 +22,23 @@
     },
     "account": {
       "hello": "Olá",
-      "name": "Amigo"
+      "name": "Rodrigo"
     }
   },
   "home": {
+    "badge": "Carteira de dados",
+    "title": {
+      "line1": "Suas contas em",
+      "line2": "um só lugar",
+      "line3": "com controle total"
+    },
+    "subtitle": "Conecte suas contas bancárias e centralize seus dados financeiros com uma experiência moderna e segura usando a Open Finance.",
+    "buttons": {
+      "primary": "Começar agora",
+      "secondary": "API workspace"
+    }
+  },
+  "apiPage": {
     "hero": {
       "title": "Painel de finanças pessoais com integração Pluggy Open Finance.",
       "subtitle": "Esta página permite que você teste a geração de tokens do seu servidor e inicie o fluxo Pluggy Connect em um só lugar.",

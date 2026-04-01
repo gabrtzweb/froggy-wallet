@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import styles from "./site-header.module.css";
+import styles from "../styles/site-header.module.css";
 
 type Theme = "light" | "dark";
 type Locale = "en" | "pt";
@@ -66,18 +66,18 @@ export function SiteHeader() {
         </Link>
 
         <nav className={styles.nav} aria-label={t("aria.mainNav")}>
-          <a href="#" className={styles.navLink}>
+          <Link href="/overview" className={styles.navLink}>
             {t("nav.overview")}
-          </a>
-          <a href="#" className={styles.navLink}>
+          </Link>
+          <Link href="/flow" className={styles.navLink}>
             {t("nav.flow")}
-          </a>
-          <a href="#" className={styles.navLink}>
+          </Link>
+          <Link href="/assets" className={styles.navLink}>
             {t("nav.assets")}
-          </a>
-          <a href="#" className={styles.navLink}>
+          </Link>
+          <Link href="/planning" className={styles.navLink}>
             {t("nav.planning")}
-          </a>
+          </Link>
         </nav>
 
         <div className={styles.actions}>
@@ -105,11 +105,7 @@ export function SiteHeader() {
               <Languages size={18} className={styles.ptLocaleIcon} />
             </span>
           </button>
-          <button
-            type="button"
-            className={styles.account}
-            aria-label={t("actions.account")}
-          >
+          <Link href="/settings" className={styles.account} aria-label={t("actions.account")}>
             <span className={styles.avatar} aria-hidden="true">
               U
             </span>
@@ -117,7 +113,7 @@ export function SiteHeader() {
               <span className={styles.hello}>{t("account.hello")} </span>
               <span className={styles.name}>{t("account.name")}</span>
             </span>
-          </button>
+          </Link>
         </div>
       </div>
     </header>

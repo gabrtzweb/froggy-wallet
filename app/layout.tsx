@@ -16,11 +16,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Froggy Wallet - Personal Finance Dashboard",
+  title: "Froggy Wallet - Dashboard",
   description:
     "Connect your bank accounts and manage your finances with Froggy Wallet. Secure open banking integration with real-time account insights.",
   icons: {
-    icon: "/assets/favicon.svg",
+    icon: "/assets/favicon.png",
   },
 };
 

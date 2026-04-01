@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
-import styles from "./open-finance-connect.module.css";
+import styles from "../styles/open-finance-connect.module.css";
 
 const PluggyConnect = dynamic(
   () => import("react-pluggy-connect").then((mod) => mod.PluggyConnect),

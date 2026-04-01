@@ -1,0 +1,172 @@
+.page {
+  min-height: 100vh;
+  padding: calc(var(--padding-card) * 1.5) var(--padding-card) var(--padding-card);
+  color: var(--foreground);
+}
+
+.main {
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  display: grid;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: center;
+  gap: 2.2rem;
+  padding: 1.2rem 0;
+}
+
+.copyBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.badge {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-full);
+  border: 1px solid color-mix(in srgb, var(--primary) 36%, transparent);
+  background: color-mix(in srgb, var(--secondary) 16%, transparent);
+  color: color-mix(in srgb, var(--foreground) 90%, transparent);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.badgeIcon {
+  color: color-mix(in srgb, var(--primary) 72%, var(--foreground) 28%);
+}
+
+.title {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 4.4vw, 3.55rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+
+.titleAccent {
+  background: linear-gradient(120deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.titleNeutralInline {
+  color: var(--foreground);
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 44ch;
+  color: color-mix(in srgb, var(--foreground) 78%, transparent);
+  font-size: 1.08rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 0.4rem;
+}
+
+.buttonWithIcon {
+  gap: 0.5rem;
+}
+
+.buttonIconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buttonIcon {
+  flex-shrink: 0;
+}
+
+.previewPanel {
+  position: relative;
+  display: grid;
+  gap: 0.8rem;
+  padding: 1rem;
+  border-radius: calc(var(--radius-lg) + 6px);
+  border: 1px solid color-mix(in srgb, var(--glass-border) 70%, transparent);
+  background: color-mix(in srgb, var(--glass-bg) 50%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.topRow {
+  display: grid;
+  grid-template-columns: 1fr 0.65fr;
+  gap: 0.8rem;
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 0.6fr;
+  grid-template-rows: 2.3fr 1fr 1fr;
+  gap: 0.8rem;
+  min-height: 450px;
+}
+
+.block {
+  border-radius: var(--radius-md);
+}
+
+.blockPrimary {
+  background: color-mix(in srgb, var(--primary) 84%, black 16%);
+}
+
+.blockSecondary {
+  background: color-mix(in srgb, var(--secondary) 68%, black 32%);
+}
+
+.blockAccent {
+  background: color-mix(in srgb, var(--accent) 74%, black 26%);
+}
+
+.blockMuted {
+  background: color-mix(in srgb, var(--glass-bg) 90%, black 10%);
+}
+
+.blockLight {
+  background: color-mix(in srgb, var(--foreground) 84%, var(--background) 16%);
+}
+
+.blockDark {
+  background: color-mix(in srgb, var(--background) 72%, black 28%);
+}
+
+.large {
+  grid-row: 1 / span 2;
+}
+
+.tall {
+  grid-row: 1 / span 2;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: calc(var(--padding-card) * 0.7) calc(var(--padding-card) * 0.7) var(--padding-card);
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .mainGrid {
+    min-height: 320px;
+  }
+}

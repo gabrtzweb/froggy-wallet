@@ -22,10 +22,23 @@
     },
     "account": {
       "hello": "Hello",
-      "name": "Friend"
+      "name": "Rodrigo"
     }
   },
   "home": {
+    "badge": "Data wallet",
+    "title": {
+      "line1": "All your accounts",
+      "line2": "in one place",
+      "line3": "with complete control"
+    },
+    "subtitle": "Connect your bank accounts and centralize your financial data with a modern, secure experience with Open Finance.",
+    "buttons": {
+      "primary": "Start now",
+      "secondary": "API workspace"
+    }
+  },
+  "apiPage": {
     "hero": {
       "title": "Personal finance dashboard with Pluggy Open Finance integration.",
       "subtitle": "This page lets you test token generation from your server and launch the Pluggy Connect flow in one place.",
