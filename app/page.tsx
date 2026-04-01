@@ -1,41 +1,40 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { OpenFinanceConnect } from "./components/open-finance-connect";
 import styles from "./page.module.css";
 
 export default function Home() {
+  const t = useTranslations();
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <section className={`${styles.hero} glass-panel`}> 
-          <p className={`${styles.badge} card-label`}>
-            Froggy Wallet
-          </p>
-          <h1 className={`${styles.title} card-title`}>
-            Personal finance dashboard with Pluggy Open Finance integration.
-          </h1>
-          <p className={`${styles.description} card-subtitle`}>
-            This page lets you test token generation from your server and launch
-            the Pluggy Connect flow in one place.
-          </p>
-          <div className={styles.actions}>
-            <a
-              href="/api/connect-token"
-              target="_blank"
-              rel="noreferrer"
-              className={`${styles.endpointLink} btn-base btn-secondary`}
-            >
-              Open GET /api/connect-token
-            </a>
-            <button
-              type="button"
-              onClick={() => {
-                void navigator.clipboard.writeText("/api/connect-token");
-              }}
-              className={`${styles.copyButton} btn-base btn-primary`}
-            >
-              Copy POST endpoint
-            </button>
+        <section className={`${styles.hero} glass-panel`}>
+          <div className="cardHeader">
+            <h1 className="card-title">{t("home.hero.title")}</h1>
+            <p className="card-subtitle">{t("home.hero.subtitle")}</p>
+          </div>
+          <div className="cardContent">
+            <div className={styles.actions}>
+              <a
+                href="/api/connect-token"
+                target="_blank"
+                rel="noreferrer"
+                className="btn-base btn-secondary"
+              >
+                {t("home.hero.buttons.getEndpoint")}
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  void navigator.clipboard.writeText("/api/connect-token");
+                }}
+                className="btn-base btn-primary"
+              >
+                {t("home.hero.buttons.copyEndpoint")}
+              </button>
+            </div>
           </div>
         </section>
 

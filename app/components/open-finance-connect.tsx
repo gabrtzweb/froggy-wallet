@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import styles from "./open-finance-connect.module.css";
@@ -15,20 +16,23 @@ type ApiTokenResponse = {
 };
 
 export function OpenFinanceConnect() {
+  const t = useTranslations("testBench");
   const [clientUserId, setClientUserId] = useState("froggy-wallet-user");
   const [connectToken, setConnectToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("Idle");
+  const [statusMessage, setStatusMessage] = useState(
+    t("status.idle"),
+  );
   const [lastItemId, setLastItemId] = useState("");
 
   const tokenPreview = useMemo(() => {
-    if (!connectToken) return "No token generated yet";
+    if (!connectToken) return t("status.noToken");
     return `${connectToken.slice(0, 24)}...${connectToken.slice(-12)}`;
-  }, [connectToken]);
+  }, [connectToken, t]);
 
   async function handleGenerateToken(method: "GET" | "POST") {
     setIsLoading(true);
-    setStatusMessage(`Requesting token with ${method}...`);
+    setStatusMessage(t("status.requesting", { method }));
 
     try {
       const userId = clientUserId.trim();
@@ -48,15 +52,17 @@ export function OpenFinanceConnect() {
       const data = (await response.json()) as ApiTokenResponse;
 
       if (!response.ok || !data.accessToken) {
-        throw new Error(data.error ?? "Token generation failed");
+        throw new Error(data.error ?? t("status.tokenGenerationFailed"));
       }
 
       setConnectToken(data.accessToken);
-      setStatusMessage(`Token generated with ${method}`);
+      setStatusMessage(t("status.generated", { method }));
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Unknown request error";
-      setStatusMessage(`Error: ${message}`);
+        error instanceof Error
+          ? error.message
+          : t("status.unknownRequestError");
+      setStatusMessage(t("status.error", { message }));
     } finally {
       setIsLoading(false);
     }
@@ -64,43 +70,43 @@ export function OpenFinanceConnect() {
 
   useEffect(() => {
     setIsLoading(true);
-    setStatusMessage("Requesting token with GET...");
+    setStatusMessage(t("status.requesting", { method: "GET" }));
 
     void fetch("/api/connect-token?clientUserId=froggy-wallet-user")
       .then((response) => response.json().then((data) => ({ response, data })))
       .then(({ response, data }: { response: Response; data: ApiTokenResponse }) => {
         if (!response.ok || !data.accessToken) {
-          throw new Error(data.error ?? "Token generation failed");
+          throw new Error(data.error ?? t("status.tokenGenerationFailed"));
         }
 
         setConnectToken(data.accessToken);
-        setStatusMessage("Token generated with GET");
+        setStatusMessage(t("status.generated", { method: "GET" }));
       })
       .catch((error: unknown) => {
         const message =
-          error instanceof Error ? error.message : "Unknown request error";
-        setStatusMessage(`Error: ${message}`);
+          error instanceof Error
+            ? error.message
+            : t("status.unknownRequestError");
+        setStatusMessage(t("status.error", { message }));
       })
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+  }, [t]);
 
   return (
     <section className={`${styles.panel} glass-panel`}>
-      <h2 className={`${styles.title} card-title`}>
-        Open Finance Test Bench
-      </h2>
-      <p className={`${styles.subtitle} card-subtitle`}>
-        Generates a Connect Token from your backend and opens Pluggy Connect.
-      </p>
+      <div className="cardHeader">
+        <h2 className="card-title">{t("title")}</h2>
+        <p className="card-subtitle">{t("subtitle")}</p>
+      </div>
 
       <div className={styles.controls}>
         <input
           value={clientUserId}
           onChange={(event) => setClientUserId(event.target.value)}
           className={styles.userInput}
-          placeholder="Client user id"
+          placeholder={t("placeholder")}
         />
         <button
           type="button"
@@ -108,7 +114,7 @@ export function OpenFinanceConnect() {
           className={`${styles.button} btn-base btn-primary`}
           disabled={isLoading}
         >
-          Test POST
+          {t("buttons.post")}
         </button>
         <button
           type="button"
@@ -116,18 +122,18 @@ export function OpenFinanceConnect() {
           className={`${styles.button} btn-base btn-secondary`}
           disabled={isLoading}
         >
-          Test GET
+          {t("buttons.get")}
         </button>
       </div>
 
       <div className={`${styles.statusCard} glass-panel`}>
-        <p className={`${styles.statusText} card-content`}>
-          <strong>Status:</strong> {statusMessage}
+        <p className="card-content">
+          <strong>{t("status.label")}:</strong> {statusMessage}
         </p>
-        <p className={`${styles.tokenPreview} card-content`}>{tokenPreview}</p>
+        <p className="card-content">{tokenPreview}</p>
         {lastItemId ? (
-          <p className={`${styles.lastItem} card-content`}>
-            <strong>Last connected item:</strong> {lastItemId}
+          <p className="card-content">
+            <strong>{t("status.lastItem")}:</strong> {lastItemId}
           </p>
         ) : null}
       </div>
@@ -139,12 +145,12 @@ export function OpenFinanceConnect() {
             includeSandbox={true}
             onSuccess={(itemData) => {
               const itemId = itemData?.item?.id;
-              setLastItemId(itemId ? String(itemId) : "(missing item id)");
-              setStatusMessage("Connected successfully");
+              setLastItemId(itemId ? String(itemId) : t("pluggy.missingItemId"));
+              setStatusMessage(t("pluggy.success"));
             }}
             onError={(error) => {
-              const message = error?.message ?? "Connection failed";
-              setStatusMessage(`Connect error: ${message}`);
+              const message = error?.message ?? t("pluggy.failed");
+              setStatusMessage(t("pluggy.connectError", { message }));
             }}
           />
         </div>

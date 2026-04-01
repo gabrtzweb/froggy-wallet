@@ -4,12 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "restart": "kill-port 3000 && start http://localhost:3000 && next dev",
+    "restart:no-open": "kill-port 3000 && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "lucide-react": "^1.7.0",
     "next": "16.2.1",
+    "next-intl": "^4.8.4",
     "pluggy-sdk": "^0.83.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -21,6 +25,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "kill-port": "^2.0.1",
     "typescript": "^5"
   }
 }

@@ -1,18 +1,12 @@
 .panel {
   width: 100%;
   border-radius: var(--radius-lg);
-}
-
-.title {
-  margin: 0;
-}
-
-.subtitle {
-  margin: 0.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .controls {
-  margin-top: 1.5rem;
   display: grid;
   gap: 1rem;
   grid-template-columns: 1fr;
@@ -46,28 +40,11 @@
 }
 
 .statusCard {
-  margin-top: 1.25rem;
   padding: var(--padding-card);
   border-radius: var(--radius-md);
-}
-
-.statusText {
-  margin: 0;
-}
-
-.tokenPreview {
-  margin: 0.25rem 0 0;
-  word-break: break-all;
-  font-family: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 0.75rem;
-}
-
-.lastItem {
-  margin: 0.25rem 0 0;
-}
-
-.widget {
-  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 @media (min-width: 640px) {
