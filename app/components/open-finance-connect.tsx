@@ -87,11 +87,11 @@ export function OpenFinanceConnect() {
   }, []);
 
   return (
-    <section className={styles.panel}>
-      <h2 className={styles.title}>
+    <section className={`${styles.panel} glass-panel`}>
+      <h2 className={`${styles.title} card-title`}>
         Open Finance Test Bench
       </h2>
-      <p className={styles.subtitle}>
+      <p className={`${styles.subtitle} card-subtitle`}>
         Generates a Connect Token from your backend and opens Pluggy Connect.
       </p>
 
@@ -105,7 +105,7 @@ export function OpenFinanceConnect() {
         <button
           type="button"
           onClick={() => void handleGenerateToken("POST")}
-          className={`${styles.button} ${styles.primaryButton}`}
+          className={`${styles.button} btn-base btn-primary`}
           disabled={isLoading}
         >
           Test POST
@@ -113,20 +113,20 @@ export function OpenFinanceConnect() {
         <button
           type="button"
           onClick={() => void handleGenerateToken("GET")}
-          className={`${styles.button} ${styles.secondaryButton}`}
+          className={`${styles.button} btn-base btn-secondary`}
           disabled={isLoading}
         >
           Test GET
         </button>
       </div>
 
-      <div className={styles.statusCard}>
-        <p className={styles.statusText}>
+      <div className={`${styles.statusCard} glass-panel`}>
+        <p className={`${styles.statusText} card-content`}>
           <strong>Status:</strong> {statusMessage}
         </p>
-        <p className={styles.tokenPreview}>{tokenPreview}</p>
+        <p className={`${styles.tokenPreview} card-content`}>{tokenPreview}</p>
         {lastItemId ? (
-          <p className={styles.lastItem}>
+          <p className={`${styles.lastItem} card-content`}>
             <strong>Last connected item:</strong> {lastItemId}
           </p>
         ) : null}

@@ -7,14 +7,14 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <section className={styles.hero}>
-          <p className={styles.badge}>
+        <section className={`${styles.hero} glass-panel`}> 
+          <p className={`${styles.badge} card-label`}>
             Froggy Wallet
           </p>
-          <h1 className={styles.title}>
+          <h1 className={`${styles.title} card-title`}>
             Personal finance dashboard with Pluggy Open Finance integration.
           </h1>
-          <p className={styles.description}>
+          <p className={`${styles.description} card-subtitle`}>
             This page lets you test token generation from your server and launch
             the Pluggy Connect flow in one place.
           </p>
@@ -23,7 +23,7 @@ export default function Home() {
               href="/api/connect-token"
               target="_blank"
               rel="noreferrer"
-              className={styles.endpointLink}
+              className={`${styles.endpointLink} btn-base btn-secondary`}
             >
               Open GET /api/connect-token
             </a>
@@ -32,7 +32,7 @@ export default function Home() {
               onClick={() => {
                 void navigator.clipboard.writeText("/api/connect-token");
               }}
-              className={styles.copyButton}
+              className={`${styles.copyButton} btn-base btn-primary`}
             >
               Copy POST endpoint
             </button>

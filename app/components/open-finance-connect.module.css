@@ -1,25 +1,14 @@
 .panel {
   width: 100%;
-  padding: 1.5rem;
-  border: 1px solid rgba(6, 78, 59, 0.15);
-  border-radius: 1.5rem;
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 12px 28px rgba(4, 47, 46, 0.1);
-  backdrop-filter: blur(8px);
+  border-radius: var(--radius-lg);
 }
 
 .title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: #042f2e;
 }
 
 .subtitle {
   margin: 0.5rem 0 0;
-  font-size: 0.875rem;
-  color: rgba(6, 78, 59, 0.8);
 }
 
 .controls {
@@ -31,66 +20,35 @@
 
 .userInput {
   height: 2.75rem;
-  padding: 0 0.75rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(6, 78, 59, 0.2);
-  background: #ecfdf5;
-  color: #042f2e;
+  padding: 0 var(--padding-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: color-mix(in srgb, var(--glass-bg) 84%, var(--background));
+  color: var(--foreground);
   font-size: 0.875rem;
   outline: none;
 }
 
 .userInput::placeholder {
-  color: rgba(6, 78, 59, 0.45);
+  color: color-mix(in srgb, var(--foreground) 45%, transparent);
 }
 
 .userInput:focus {
-  border-color: #10b981;
+  border-color: var(--accent);
 }
 
 .button {
-  height: 2.75rem;
-  border-radius: 0.75rem;
-  border: none;
-  padding: 0 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 150ms ease, opacity 150ms ease;
+  min-height: 2.75rem;
 }
 
 .button:disabled {
-  cursor: not-allowed;
   opacity: 0.5;
-}
-
-.primaryButton {
-  background: #047857;
-  color: #ffffff;
-}
-
-.primaryButton:hover:not(:disabled) {
-  background: #065f46;
-}
-
-.secondaryButton {
-  border: 1px solid rgba(6, 78, 59, 0.2);
-  background: #d1fae5;
-  color: #064e3b;
-}
-
-.secondaryButton:hover:not(:disabled) {
-  background: #a7f3d0;
 }
 
 .statusCard {
   margin-top: 1.25rem;
-  padding: 0.75rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(6, 78, 59, 0.15);
-  background: rgba(236, 253, 245, 0.75);
-  color: #042f2e;
-  font-size: 0.875rem;
+  padding: var(--padding-card);
+  border-radius: var(--radius-md);
 }
 
 .statusText {
@@ -113,10 +71,6 @@
 }
 
 @media (min-width: 640px) {
-  .panel {
-    padding: 2rem;
-  }
-
   .controls {
     grid-template-columns: 1fr auto auto;
   }
