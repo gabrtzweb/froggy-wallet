@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Froggy Wallet
 
-## Getting Started
+Personal finance dashboard with Open Finance integration using Pluggy API.
 
-First, run the development server:
+## Setup
 
-```bash
+1. Install dependencies:
+
+ npm install
+
+1. Create your local environment file from the template:
+
+ copy .env.example .env.local
+
+1. In .env.local, replace the placeholders with your real Pluggy credentials:
+
+ PLUGGY_CLIENT_ID=your_real_client_id
+ PLUGGY_CLIENT_SECRET=your_real_client_secret
+ PLUGGY_DASHBOARD_ITEM_IDS=your_item_id_1,your_item_id_2
+
+Important:
+
+- Keep credentials server-side only.
+- Never expose PLUGGY_CLIENT_ID or PLUGGY_CLIENT_SECRET in browser/client code.
+- Do not commit .env.local to git.
+
+## Run
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API Endpoint
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+POST /api/connect-token
 
-## Learn More
+Request body example:
 
-To learn more about Next.js, take a look at the following resources:
+{
+  "clientUserId": "user-123"
+}
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Response example:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+{
+  "accessToken": "..."
+}
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This endpoint creates a Pluggy Connect Token on the server so your frontend can open Pluggy Connect securely.
