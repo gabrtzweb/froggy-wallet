@@ -3,9 +3,11 @@
 import { ArrowRight, LayoutDashboard, Lock, RefreshCw, Zap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useRef } from "react";
 
 export function Home() {
   const t = useTranslations("home");
+  const previewStackRef = useRef<HTMLDivElement | null>(null);
   const line3 = t("title.line3");
   const [line3Lead, ...line3RestParts] = line3.split(" ");
   const line3Rest = line3RestParts.join(" ");
@@ -26,6 +28,38 @@ export function Home() {
       value: t("preview.accounts.bb.value"),
     },
   ];
+
+  function setTiltFromPointer(clientX: number, clientY: number) {
+    const element = previewStackRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const bounds = element.getBoundingClientRect();
+    const relativeX = (clientX - bounds.left) / bounds.width;
+    const relativeY = (clientY - bounds.top) / bounds.height;
+    const rotateY = (relativeX - 0.5) * 7;
+    const rotateX = (0.5 - relativeY) * 6;
+
+    element.style.setProperty("--tilt-x", `${rotateY.toFixed(2)}deg`);
+    element.style.setProperty("--tilt-y", `${rotateX.toFixed(2)}deg`);
+    element.style.setProperty("--parallax-x", `${((relativeX - 0.5) * 6).toFixed(2)}px`);
+    element.style.setProperty("--parallax-y", `${((relativeY - 0.5) * 6).toFixed(2)}px`);
+  }
+
+  function resetTilt() {
+    const element = previewStackRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    element.style.setProperty("--tilt-x", "0deg");
+    element.style.setProperty("--tilt-y", "0deg");
+    element.style.setProperty("--parallax-x", "0px");
+    element.style.setProperty("--parallax-y", "0px");
+  }
 
   return (
     <div className="page">
@@ -63,7 +97,12 @@ export function Home() {
           </div>
 
           <div className="previewPanel" aria-hidden="true">
-            <div className="previewStack">
+            <div
+              ref={previewStackRef}
+              className="previewStack"
+              onPointerMove={(event) => setTiltFromPointer(event.clientX, event.clientY)}
+              onPointerLeave={resetTilt}
+            >
               <article className="walletCard">
                 <header className="walletHeaderRow">
                   <p className="walletTitle">{t("preview.connectedAccounts")}</p>
@@ -220,6 +259,12 @@ export function Home() {
           position: relative;
           z-index: 1;
           width: min(100%, 386px);
+          --tilt-x: 0deg;
+          --tilt-y: 0deg;
+          --parallax-x: 0px;
+          --parallax-y: 0px;
+          perspective: 1200px;
+          transform-style: preserve-3d;
         }
 
         .previewPanel::before {
@@ -271,6 +316,16 @@ export function Home() {
           display: grid;
           grid-template-rows: auto 1fr auto;
           gap: 0.9rem;
+          transform: rotateX(var(--tilt-y)) rotateY(var(--tilt-x));
+          transform-style: preserve-3d;
+          transition: transform 240ms ease, box-shadow 240ms ease;
+          will-change: transform;
+        }
+
+        .previewStack:hover .walletCard {
+          box-shadow:
+            0 32px 64px color-mix(in srgb, var(--background) 60%, transparent),
+            inset 0 1px 0 color-mix(in srgb, var(--foreground) 9%, transparent);
         }
 
         .walletHeaderRow {
@@ -278,6 +333,7 @@ export function Home() {
           align-items: center;
           justify-content: space-between;
           gap: 1rem;
+          transform: translateZ(24px);
         }
 
         .walletTitle {
@@ -303,6 +359,7 @@ export function Home() {
 
         .walletList {
           display: grid;
+          transform: translateZ(14px);
         }
 
         .walletItem {
@@ -367,6 +424,7 @@ export function Home() {
           align-items: center;
           justify-content: space-between;
           gap: 0.8rem;
+          transform: translateZ(28px);
         }
 
         .walletTotal span {
@@ -394,6 +452,7 @@ export function Home() {
           box-shadow: 0 12px 34px color-mix(in srgb, var(--background) 64%, transparent);
           z-index: 2;
           will-change: transform;
+          transform-style: preserve-3d;
         }
 
         .floatingTopRight {
@@ -403,6 +462,8 @@ export function Home() {
           background: color-mix(in srgb, var(--accent) 10%, var(--glass-bg) 90%);
           z-index: 3;
           animation: floatTop 5.2s ease-in-out infinite;
+          transform: translate3d(calc(var(--parallax-x) * 0.7), calc(var(--parallax-y) * -0.2), 22px)
+            rotateX(calc(var(--tilt-y) * 0.22)) rotateY(calc(var(--tilt-x) * 0.22));
         }
 
         .floatingBottomLeft {
@@ -412,6 +473,8 @@ export function Home() {
           background: color-mix(in srgb, var(--secondary) 10%, var(--glass-bg) 90%);
           z-index: 3;
           animation: floatBottom 6.1s ease-in-out infinite;
+          transform: translate3d(calc(var(--parallax-x) * -0.7), calc(var(--parallax-y) * 0.7), 18px)
+            rotateX(calc(var(--tilt-y) * 0.18)) rotateY(calc(var(--tilt-x) * 0.18));
         }
 
         .floatingIcon {
@@ -445,8 +508,11 @@ export function Home() {
 
         @media (prefers-reduced-motion: reduce) {
           .floatingTopRight,
-          .floatingBottomLeft {
+          .floatingBottomLeft,
+          .walletCard {
             animation: none;
+            transition: none;
+            transform: none;
           }
         }
 
@@ -509,6 +575,7 @@ export function Home() {
             width: 100%;
             min-height: 308px;
             padding: 0.82rem;
+            transform: none;
           }
 
           .walletItem {
@@ -525,11 +592,13 @@ export function Home() {
           .floatingTopRight {
             top: -0.9rem;
             right: -0.72rem;
+            transform: none;
           }
 
           .floatingBottomLeft {
             left: -0.72rem;
             bottom: -0.82rem;
+            transform: none;
           }
         }
       `}</style>
