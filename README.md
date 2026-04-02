@@ -6,7 +6,7 @@ Personal finance dashboard with Open Finance integration using Pluggy API.
 
 1. Install dependencies:
 
-    npm install
+    `npm install`
 
 1. Create your local environment file...
 
@@ -80,4 +80,4 @@ Pluggy requires a public HTTPS URL (localhost is not accepted).
 
 1. Use Pluggy's "Save & Test Webhook".
 
-If you deploy the app later, replace the ngrok URL with your production domain.
+    If you deploy the app later, replace the ngrok URL with your production domain.
