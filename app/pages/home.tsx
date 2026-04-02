@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Code2, Zap } from "lucide-react";
+import { ArrowRight, LayoutDashboard, Zap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
@@ -36,10 +36,10 @@ export function Home() {
                   <ArrowRight size={16} className="buttonIcon" />
                 </span>
               </Link>
-              <Link href="/api-guide" className="btn-base btn-secondary buttonWithIcon">
+              <Link href="/overview" className="btn-base btn-secondary buttonWithIcon">
                 {t("buttons.secondary")}
                 <span className="buttonIconWrap" aria-hidden="true">
-                  <Code2 size={16} className="buttonIcon" />
+                  <LayoutDashboard size={16} className="buttonIcon" />
                 </span>
               </Link>
             </div>

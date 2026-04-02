@@ -42,44 +42,8 @@
     },
     "subtitle": "Conecte suas contas bancárias e centralize seus dados financeiros com uma experiência moderna e segura usando a Open Finance.",
     "buttons": {
-      "primary": "Começar",
-      "secondary": "Visualizar API"
-    }
-  },
-  "apiPage": {
-    "hero": {
-      "title": "Painel de finanças pessoais com integração Pluggy Open Finance.",
-      "subtitle": "Esta página permite que você teste a geração de tokens do seu servidor e inicie o fluxo Pluggy Connect em um só lugar.",
-      "buttons": {
-        "getEndpoint": "Abrir GET /api/connect-token",
-        "copyEndpoint": "Copiar endpoint POST"
-      }
-    }
-  },
-  "testBench": {
-    "title": "Teste Open Finance",
-    "subtitle": "Gera um Token de Conexão do seu backend e abre Pluggy Connect.",
-    "placeholder": "ID do usuário cliente",
-    "buttons": {
-      "post": "Testar POST",
-      "get": "Testar GET"
-    },
-    "status": {
-      "label": "Status",
-      "idle": "Ocioso",
-      "requesting": "Solicitando token com {method}...",
-      "generated": "Token gerado com {method}",
-      "error": "Erro: {message}",
-      "noToken": "Nenhum token gerado ainda",
-      "lastItem": "Último item conectado",
-      "tokenGenerationFailed": "Falha ao gerar token",
-      "unknownRequestError": "Erro de requisição desconhecido"
-    },
-    "pluggy": {
-      "success": "Conectado com sucesso",
-      "failed": "Falha na conexão",
-      "missingItemId": "(id do item ausente)",
-      "connectError": "Erro de conexão: {message}"
+      "primary": "Começar agora",
+      "secondary": "Painel"
     }
   }
 }
