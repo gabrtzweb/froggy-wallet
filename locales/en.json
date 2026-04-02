@@ -44,6 +44,31 @@
     "buttons": {
       "primary": "Start now",
       "secondary": "Dashboard"
+    },
+    "preview": {
+      "connectedAccounts": "Connected Accounts",
+      "statusActive": "3 active",
+      "totalWealth": "Total Wealth",
+      "totalValue": "R$ 25.576,80",
+      "encryptedData": "Encrypted data",
+      "syncedNow": "Synced just now",
+      "accounts": {
+        "nubank": {
+          "name": "Nubank",
+          "updated": "Updated: Today",
+          "value": "R$ 4.231,50"
+        },
+        "inter": {
+          "name": "Inter",
+          "updated": "Updated: Today",
+          "value": "R$ 12.890,00"
+        },
+        "bb": {
+          "name": "Banco do Brasil",
+          "updated": "Updated: 1 day",
+          "value": "R$ 8.455,30"
+        }
+      }
     }
   }
 }

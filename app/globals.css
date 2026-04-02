@@ -23,9 +23,10 @@
   --padding-btn: 12px 24px;
   --font-heading: 'Rubik', sans-serif;
   --font-body: 'Karla', sans-serif;
-  --font-size-sm: 0.75rem;
-  --font-size-base: 0.875rem;
-  --font-size-heading: 1.5rem;
+  --font-size-sm: clamp(0.7rem, 0.68rem + 0.2vw, 0.75rem);
+  --font-size-base: clamp(0.84rem, 0.8rem + 0.24vw, 0.875rem);
+  --font-size-heading: clamp(1.32rem, 1.05rem + 1.1vw, 1.5rem);
+  --font-size-hero: clamp(2.5rem, 1.4rem + 3.2vw, 3rem);
   --layout-max-width: 1200px;
   --layout-gutter-desktop: 24px;
   --layout-gutter-mobile: 16px;
@@ -83,6 +84,8 @@ html[data-theme='light'] {
 
 html, body {
   min-height: 100vh;
+  overflow-x: hidden; 
+  overflow-x: clip;
 }
 
 body {

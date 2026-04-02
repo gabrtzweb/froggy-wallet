@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, LayoutDashboard, Zap } from "lucide-react";
+import { ArrowRight, LayoutDashboard, Lock, RefreshCw, Zap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
@@ -9,6 +9,23 @@ export function Home() {
   const line3 = t("title.line3");
   const [line3Lead, ...line3RestParts] = line3.split(" ");
   const line3Rest = line3RestParts.join(" ");
+  const accounts = [
+    {
+      name: t("preview.accounts.nubank.name"),
+      updated: t("preview.accounts.nubank.updated"),
+      value: t("preview.accounts.nubank.value"),
+    },
+    {
+      name: t("preview.accounts.inter.name"),
+      updated: t("preview.accounts.inter.updated"),
+      value: t("preview.accounts.inter.value"),
+    },
+    {
+      name: t("preview.accounts.bb.name"),
+      updated: t("preview.accounts.bb.updated"),
+      value: t("preview.accounts.bb.value"),
+    },
+  ];
 
   return (
     <div className="page">
@@ -46,16 +63,41 @@ export function Home() {
           </div>
 
           <div className="previewPanel" aria-hidden="true">
-            <div className="topRow">
-              <span className="block blockMuted" />
-              <span className="block blockAccent" />
-            </div>
-            <div className="mainGrid">
-              <span className="block blockPrimary large" />
-              <span className="block blockSecondary tall" />
-              <span className="block blockLight" />
-              <span className="block blockDark" />
-              <span className="block blockAccent" />
+            <div className="previewStack">
+              <article className="walletCard">
+                <header className="walletHeaderRow">
+                  <p className="walletTitle">{t("preview.connectedAccounts")}</p>
+                  <span className="walletStatus">{t("preview.statusActive")}</span>
+                </header>
+
+                <div className="walletList">
+                  {accounts.map((account) => (
+                    <div className="walletItem" key={account.name}>
+                      <span className="bankLogoPlaceholder" />
+                      <div className="walletMeta">
+                        <p className="bankName">{account.name}</p>
+                        <p className="bankUpdate">{account.updated}</p>
+                      </div>
+                      <p className="bankValue">{account.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <footer className="walletTotal">
+                  <span>{t("preview.totalWealth")}</span>
+                  <strong>{t("preview.totalValue")}</strong>
+                </footer>
+              </article>
+
+              <aside className="floatingCard floatingTopRight">
+                <Lock size={12} className="floatingIcon" aria-hidden="true" />
+                <p className="floatingLabel">{t("preview.encryptedData")}</p>
+              </aside>
+
+              <aside className="floatingCard floatingBottomLeft">
+                <RefreshCw size={12} className="floatingIcon" aria-hidden="true" />
+                <p className="floatingLabel">{t("preview.syncedNow")}</p>
+              </aside>
             </div>
           </div>
         </section>
@@ -103,7 +145,7 @@ export function Home() {
           border: 1px solid color-mix(in srgb, var(--primary) 36%, transparent);
           background: color-mix(in srgb, var(--secondary) 16%, transparent);
           color: color-mix(in srgb, var(--foreground) 90%, transparent);
-          font-size: 0.74rem;
+          font-size: var(--font-size-sm);
           letter-spacing: 0.08em;
           text-transform: uppercase;
           font-weight: 700;
@@ -119,7 +161,7 @@ export function Home() {
           flex-direction: column;
           gap: 0.2rem;
           font-family: var(--font-heading);
-          font-size: clamp(1.8rem, 4.4vw, 3.55rem);
+          font-size: var(--font-size-hero);
           line-height: 1.04;
           letter-spacing: -0.02em;
         }
@@ -139,7 +181,7 @@ export function Home() {
           margin: 0;
           max-width: 44ch;
           color: color-mix(in srgb, var(--foreground) 78%, transparent);
-          font-size: 1.08rem;
+          font-size: var(--font-size-base);
         }
 
         .actions {
@@ -166,12 +208,253 @@ export function Home() {
         .previewPanel {
           position: relative;
           min-height: 420px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          overflow: visible;
+          isolation: isolate;
+        }
+
+        .previewStack {
+          position: relative;
+          z-index: 1;
+          width: min(100%, 386px);
+        }
+
+        .previewPanel::before {
+          content: "";
+          position: absolute;
+          width: 320px;
+          height: 320px;
+          right: -42px;
+          top: -36px;
+          background:
+            radial-gradient(circle at center, color-mix(in srgb, var(--secondary) 26%, transparent), transparent 68%);
+          filter: blur(10px);
+          z-index: 0;
+          pointer-events: none;
+        }
+
+        .previewPanel::after {
+          content: "";
+          position: absolute;
+          width: 300px;
+          height: 300px;
+          left: -58px;
+          bottom: -62px;
+          background:
+            radial-gradient(circle at center, color-mix(in srgb, var(--primary) 28%, transparent), transparent 70%);
+          filter: blur(12px);
+          z-index: 0;
+          pointer-events: none;
+        }
+
+        .walletCard {
+          position: relative;
+          z-index: 1;
+          margin: 0;
+          width: 100%;
+          min-height: 392px;
+          border-radius: 18px;
+          border: 1px solid color-mix(in srgb, var(--glass-border) 76%, transparent);
+          background:
+            linear-gradient(
+              175deg,
+              color-mix(in srgb, var(--background) 91%, transparent),
+              color-mix(in srgb, var(--glass-bg) 52%, transparent)
+            );
+          box-shadow:
+            0 28px 60px color-mix(in srgb, var(--background) 62%, transparent),
+            inset 0 1px 0 color-mix(in srgb, var(--foreground) 8%, transparent);
+          padding: 0.98rem;
           display: grid;
-          padding: var(--padding-card);
-          border-radius: var(--radius-lg);
-          border: 1px solid color-mix(in srgb, var(--glass-border) 70%, transparent);
-          background: color-mix(in srgb, var(--glass-bg) 50%, transparent);
-          backdrop-filter: blur(12px);
+          grid-template-rows: auto 1fr auto;
+          gap: 0.9rem;
+        }
+
+        .walletHeaderRow {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+        }
+
+        .walletTitle {
+          margin: 0;
+          font-size: var(--font-size-base);
+          color: color-mix(in srgb, var(--foreground) 82%, transparent);
+          font-weight: 700;
+          letter-spacing: 0.01em;
+        }
+
+        .walletStatus {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.2rem 0.55rem;
+          border-radius: var(--radius-full);
+          font-size: var(--font-size-sm);
+          font-weight: 700;
+          background: color-mix(in srgb, var(--primary) 20%, transparent);
+          color: color-mix(in srgb, var(--primary) 88%, var(--foreground) 12%);
+          border: 1px solid color-mix(in srgb, var(--primary) 28%, transparent);
+        }
+
+        .walletList {
+          display: grid;
+        }
+
+        .walletItem {
+          display: grid;
+          grid-template-columns: 30px 1fr auto;
+          align-items: center;
+          gap: 0.65rem;
+          padding: 0.75rem 0;
+          border-top: 1px solid color-mix(in srgb, var(--divider) 72%, transparent);
+        }
+
+        .walletItem:first-child {
+          border-top: 1px solid color-mix(in srgb, var(--divider) 58%, transparent);
+        }
+
+        .bankLogoPlaceholder {
+          width: 30px;
+          height: 30px;
+          border-radius: var(--radius-full);
+          border: 1px solid color-mix(in srgb, var(--glass-border) 80%, transparent);
+          background: radial-gradient(
+            70% 70% at 25% 25%,
+            color-mix(in srgb, var(--foreground) 24%, transparent),
+            transparent
+          );
+        }
+
+        .walletMeta {
+          min-width: 0;
+        }
+
+        .bankName {
+          margin: 0;
+          font-size: var(--font-size-base);
+          font-weight: 700;
+          color: color-mix(in srgb, var(--foreground) 90%, transparent);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .bankUpdate {
+          margin: 0.04rem 0 0;
+          font-size: var(--font-size-sm);
+          color: color-mix(in srgb, var(--foreground) 54%, transparent);
+        }
+
+        .bankValue {
+          margin: 0;
+          font-size: var(--font-size-base);
+          font-weight: 700;
+          color: color-mix(in srgb, var(--foreground) 88%, transparent);
+          white-space: nowrap;
+        }
+
+        .walletTotal {
+          border-radius: var(--radius-md);
+          border: 1px solid color-mix(in srgb, var(--divider) 56%, transparent);
+          background: color-mix(in srgb, var(--glass-bg) 65%, transparent);
+          padding: 0.8rem 0.85rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.8rem;
+        }
+
+        .walletTotal span {
+          font-size: var(--font-size-base);
+          color: color-mix(in srgb, var(--foreground) 58%, transparent);
+          font-weight: 700;
+        }
+
+        .walletTotal strong {
+          font-size: var(--font-size-heading);
+          line-height: 1;
+          letter-spacing: -0.02em;
+          font-family: var(--font-heading);
+          color: color-mix(in srgb, var(--foreground) 95%, transparent);
+        }
+
+        .floatingCard {
+          position: absolute;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.42rem;
+          border-radius: var(--radius-md);
+          border: 1px solid color-mix(in srgb, var(--glass-border) 75%, transparent);
+          backdrop-filter: blur(11px);
+          box-shadow: 0 12px 34px color-mix(in srgb, var(--background) 64%, transparent);
+          z-index: 2;
+          will-change: transform;
+        }
+
+        .floatingTopRight {
+          top: -1.55rem;
+          right: -2rem;
+          padding: 0.5rem 0.75rem;
+          background: color-mix(in srgb, var(--accent) 10%, var(--glass-bg) 90%);
+          z-index: 3;
+          animation: floatTop 5.2s ease-in-out infinite;
+        }
+
+        .floatingBottomLeft {
+          left: -2rem;
+          bottom: -1.5rem;
+          padding: 0.5rem 0.75rem;
+          background: color-mix(in srgb, var(--secondary) 10%, var(--glass-bg) 90%);
+          z-index: 3;
+          animation: floatBottom 6.1s ease-in-out infinite;
+        }
+
+        .floatingIcon {
+          flex-shrink: 0;
+          color: color-mix(in srgb, var(--foreground) 74%, transparent);
+        }
+
+        @keyframes floatTop {
+          0% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-4px);
+          }
+          100% {
+            transform: translateY(0px);
+          }
+        }
+
+        @keyframes floatBottom {
+          0% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(4px);
+          }
+          100% {
+            transform: translateY(0px);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .floatingTopRight,
+          .floatingBottomLeft {
+            animation: none;
+          }
+        }
+
+        .floatingLabel {
+          margin: 0;
+          font-size: var(--font-size-sm);
+          font-weight: 700;
+          color: color-mix(in srgb, var(--foreground) 80%, transparent);
         }
 
         @media (max-width: 1024px) {
@@ -184,20 +467,69 @@ export function Home() {
           .page {
             min-height: auto;
             align-items: flex-start;
-            padding: calc(var(--padding-card) * 0.7) 0 var(--padding-card);
+            padding: calc(var(--padding-card) * 0.9) 0 var(--padding-card);
           }
 
           .main {
-            width: min(1200px, calc(100% - 16px));
+            width: min(1200px, calc(100% - 40px));
           }
 
           .hero {
             grid-template-columns: 1fr;
             min-height: 0;
+            gap: 5rem;
+            padding-top: 0.4rem;
+          }
+
+          .copyBlock {
+            gap: 1.05rem;
+          }
+
+          .actions {
+            margin-top: 0.9rem;
+          }
+
+          .title {
+            line-height: 1.06;
           }
 
           .previewPanel {
             min-height: 320px;
+            padding: 0;
+            margin-top: 0.85rem;
+          }
+
+          .previewStack {
+            width: min(346px, calc(100% - 34px));
+            margin-inline: auto;
+          }
+
+          .walletCard {
+            margin: 0;
+            width: 100%;
+            min-height: 308px;
+            padding: 0.82rem;
+          }
+
+          .walletItem {
+            grid-template-columns: 24px 1fr auto;
+            gap: 0.55rem;
+            padding: 0.63rem 0;
+          }
+
+          .bankLogoPlaceholder {
+            width: 24px;
+            height: 24px;
+          }
+
+          .floatingTopRight {
+            top: -0.9rem;
+            right: -0.72rem;
+          }
+
+          .floatingBottomLeft {
+            left: -0.72rem;
+            bottom: -0.82rem;
           }
         }
       `}</style>

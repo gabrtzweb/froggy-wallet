@@ -44,6 +44,31 @@
     "buttons": {
       "primary": "Começar agora",
       "secondary": "Painel"
+    },
+    "preview": {
+      "connectedAccounts": "Contas conectadas",
+      "statusActive": "3 ativas",
+      "totalWealth": "Patrimônio total",
+      "totalValue": "R$ 25.576,80",
+      "encryptedData": "Dados criptografados",
+      "syncedNow": "Sincronizado agora",
+      "accounts": {
+        "nubank": {
+          "name": "Nubank",
+          "updated": "Atualizado: Hoje",
+          "value": "R$ 4.231,50"
+        },
+        "inter": {
+          "name": "Inter",
+          "updated": "Atualizado: Hoje",
+          "value": "R$ 12.890,00"
+        },
+        "bb": {
+          "name": "Banco do Brasil",
+          "updated": "Atualizado: 1 dia",
+          "value": "R$ 8.455,30"
+        }
+      }
     }
   }
 }
