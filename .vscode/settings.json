@@ -8,7 +8,6 @@
     "eslint.config.mjs": true,
     "postcss.config.mjs": true,
     "package-lock.json": true,
-    ".env.example": true,
     "AGENTS.md": true
   }
 }

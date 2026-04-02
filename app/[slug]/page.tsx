@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import { AssetsPage } from "../pages/assets-page";
-import { FlowPage } from "../pages/flow-page";
-import { OverviewPage } from "../pages/overview-page";
-import { PlanningPage } from "../pages/planning-page";
-import { SettingsPage } from "../pages/settings-page";
+import { Assets } from "@/app/pages/assets";
+import { Flow } from "@/app/pages/flow";
+import { Overview } from "@/app/pages/overview";
+import { Planning } from "@/app/pages/planning";
+import { Settings } from "@/app/pages/settings";
 
 type Slug = "overview" | "flow" | "assets" | "planning" | "settings";
 
@@ -13,11 +13,11 @@ type Props = {
 };
 
 const routes: Record<Slug, () => ReactNode> = {
-  overview: OverviewPage,
-  flow: FlowPage,
-  assets: AssetsPage,
-  planning: PlanningPage,
-  settings: SettingsPage,
+  overview: Overview,
+  flow: Flow,
+  assets: Assets,
+  planning: Planning,
+  settings: Settings,
 };
 
 export function generateStaticParams() {

@@ -1,5 +1,5 @@
-import { ApiPage } from "../pages/api-page";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-	return <ApiPage />;
+	redirect("/api-guide");
 }

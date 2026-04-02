@@ -1,11 +1,10 @@
 "use client";
 
-import { Globe, Languages, Moon, Sun } from "lucide-react";
+import { Globe, Languages, Menu, Moon, Sun, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import styles from "../styles/site-header.module.css";
+import { useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 type Locale = "en" | "pt";
@@ -28,10 +27,11 @@ function applyTheme(theme: Theme) {
   window.localStorage.setItem("froggy-theme", theme);
 }
 
-export function SiteHeader() {
+export function Header() {
   const t = useTranslations("header");
   const locale = useLocale() as Locale;
   const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     applyTheme(getPreferredTheme());
@@ -55,65 +55,88 @@ export function SiteHeader() {
     router.refresh();
   }
 
+  function closeMenu() {
+    setIsMenuOpen(false);
+  }
+
+  function toggleMenu() {
+    setIsMenuOpen((prev) => !prev);
+  }
+
   return (
-    <header className={`${styles.header} header-glass`}>
-      <div className={styles.inner}>
-        <Link href="/" className={styles.brand} aria-label={t("aria.dashboard")}>
-          <span className={styles.logo} aria-hidden="true">
+    <header className="header header-glass">
+      <div className="inner">
+        <Link href="/" className="brand" aria-label={t("aria.dashboard")}>
+          <span className="logo" aria-hidden="true">
             🐸
           </span>
-          <span className={styles.title}>{t("brand")}</span>
+          <span className="title">{t("brand")}</span>
         </Link>
 
-        <nav className={styles.nav} aria-label={t("aria.mainNav")}>
-          <Link href="/overview" className={styles.navLink}>
+        <nav
+          id="site-navigation"
+          className={`nav ${isMenuOpen ? "navOpen" : ""}`}
+          aria-label={t("aria.mainNav")}
+        >
+          <Link href="/overview" className="navLink" onClick={closeMenu}>
             {t("nav.overview")}
           </Link>
-          <Link href="/flow" className={styles.navLink}>
+          <Link href="/flow" className="navLink" onClick={closeMenu}>
             {t("nav.flow")}
           </Link>
-          <Link href="/assets" className={styles.navLink}>
+          <Link href="/assets" className="navLink" onClick={closeMenu}>
             {t("nav.assets")}
           </Link>
-          <Link href="/planning" className={styles.navLink}>
+          <Link href="/planning" className="navLink" onClick={closeMenu}>
             {t("nav.planning")}
           </Link>
         </nav>
 
-        <div className={styles.actions}>
+        <div className="actions">
           <button
             type="button"
-            className={styles.chip}
+            className="chip"
             onClick={handleThemeToggle}
             aria-label={t("actions.toggleTheme")}
             title={t("titles.toggleTheme")}
           >
-            <span className={styles.themeIcon} aria-hidden="true">
-              <Sun size={18} className={styles.sunIcon} />
-              <Moon size={18} className={styles.moonIcon} />
+            <span className="themeIcon" aria-hidden="true">
+              <Sun size={18} className="sunIcon" />
+              <Moon size={18} className="moonIcon" />
             </span>
           </button>
           <button
             type="button"
-            className={styles.chip}
+            className="chip"
             onClick={handleLanguageToggle}
             aria-label={t("actions.selectLanguage")}
             title={t("titles.language")}
           >
-            <span className={styles.languageIcon} aria-hidden="true">
-              <Globe size={18} className={styles.enLocaleIcon} />
-              <Languages size={18} className={styles.ptLocaleIcon} />
+            <span className="languageIcon" aria-hidden="true">
+              <Globe size={18} className="enLocaleIcon" />
+              <Languages size={18} className="ptLocaleIcon" />
             </span>
           </button>
-          <Link href="/settings" className={styles.account} aria-label={t("actions.account")}>
-            <span className={styles.avatar} aria-hidden="true">
+          <Link href="/settings" className="account" aria-label={t("actions.account")}>
+            <span className="avatar" aria-hidden="true">
               U
             </span>
-            <span className={styles.accountText}>
-              <span className={styles.hello}>{t("account.hello")} </span>
-              <span className={styles.name}>{t("account.name")}</span>
+            <span className="accountText">
+              <span className="hello">{t("account.hello")} </span>
+              <span className="name">{t("account.name")}</span>
             </span>
           </Link>
+          <button
+            type="button"
+            className="chip menuButton"
+            onClick={toggleMenu}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            aria-controls="site-navigation"
+            title={isMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
       </div>
     </header>

@@ -23,6 +23,12 @@
   --padding-btn: 12px 24px;
   --font-heading: 'Rubik', sans-serif;
   --font-body: 'Karla', sans-serif;
+  --font-size-sm: 0.75rem;
+  --font-size-base: 0.875rem;
+  --font-size-heading: 1.5rem;
+  --layout-max-width: 1200px;
+  --layout-gutter-desktop: 24px;
+  --layout-gutter-mobile: 16px;
 }
 
 /* Colors - Dark Mode */
@@ -91,6 +97,7 @@ body {
 }
 
 .app-shell {
+  flex: 1;
   width: 100%;
   padding-top: 94px;
 }
@@ -132,14 +139,12 @@ body::after {
 /* Responsive Typography */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
+  font-size: var(--font-size-heading);
   font-weight: 600;
   line-height: 1.2;
 }
 
-h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
-h2 { font-size: clamp(1.5rem, 4vw, 2.5rem); }
-h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
-p  { font-size: clamp(1rem, 1.5vw, 1.125rem); line-height: 1.6; }
+p  { font-size: var(--font-size-base); line-height: 1.6; }
 
 /* Global Utility Classes */
 
@@ -171,6 +176,366 @@ p  { font-size: clamp(1rem, 1.5vw, 1.125rem); line-height: 1.6; }
   border-radius: 0;
 }
 
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  padding: 1rem 0;
+}
+
+.header .inner,
+.footer .inner {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header .inner {
+  width: min(var(--layout-max-width), calc(100% - var(--layout-gutter-desktop)));
+}
+
+.header .brand,
+.header .account {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--glass-bg) 82%, transparent);
+  color: color-mix(in srgb, var(--foreground) 82%, transparent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.header .brand {
+  gap: 0.55rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  padding: 0.35rem 0.75rem 0.35rem 0.35rem;
+}
+
+.header .logo {
+  font-size: 1.3rem;
+}
+
+.header .title {
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+
+.header .nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.header .navLink {
+  text-decoration: none;
+  color: color-mix(in srgb, var(--foreground) 84%, transparent);
+  font-family: var(--font-body);
+  font-size: 0.96rem;
+  padding: 0.52rem 0.72rem;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.header .navLink:hover {
+  color: var(--foreground);
+  border-color: var(--glass-border);
+  background: color-mix(in srgb, var(--glass-bg) 70%, transparent);
+}
+
+.header .actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header .menuButton {
+  display: none !important;
+}
+
+.header .chip,
+.footer .iconLink {
+  border-radius: var(--radius-full);
+  color: color-mix(in srgb, var(--foreground) 68%, transparent);
+  background: color-mix(in srgb, var(--glass-bg) 65%, transparent);
+}
+
+.header .chip {
+  width: 38px;
+  height: 38px;
+  border: 1px solid color-mix(in srgb, var(--glass-border) 75%, transparent);
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.header .chip:hover {
+  color: color-mix(in srgb, var(--foreground) 88%, transparent);
+}
+
+.header .brand:hover,
+.header .account:hover {
+  color: color-mix(in srgb, var(--foreground) 88%, transparent);
+}
+
+.header .themeIcon,
+.header .languageIcon {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+}
+
+.header .sunIcon,
+.header .moonIcon,
+.header .enLocaleIcon,
+.header .ptLocaleIcon {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.header .sunIcon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.header .moonIcon {
+  opacity: 0;
+  transform: scale(0.75) rotate(-45deg);
+}
+
+html[data-theme='dark'] .header .sunIcon {
+  opacity: 0;
+  transform: scale(0.75) rotate(45deg);
+}
+
+html[data-theme='dark'] .header .moonIcon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.header .enLocaleIcon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.header .ptLocaleIcon {
+  opacity: 0;
+  transform: scale(0.75) rotate(-45deg);
+}
+
+html[data-locale='pt'] .header .enLocaleIcon {
+  opacity: 0;
+  transform: scale(0.75) rotate(45deg);
+}
+
+html[data-locale='pt'] .header .ptLocaleIcon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.header .account {
+  gap: 0.55rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.35rem;
+}
+
+.header .avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  display: grid;
+  place-items: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--foreground);
+  background: linear-gradient(140deg, var(--primary), var(--accent));
+}
+
+.header .accountText {
+  white-space: nowrap;
+  color: inherit;
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.header .hello,
+.header .name {
+  opacity: 0.9;
+}
+
+.footer {
+  margin-top: auto;
+  width: 100%;
+}
+
+.footer .inner {
+  width: min(var(--layout-max-width), calc(100% - var(--layout-gutter-desktop)));
+  padding: 1rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--glass-border) 55%, transparent);
+}
+
+.footer .left,
+.footer .right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  color: color-mix(in srgb, var(--foreground) 68%, transparent);
+}
+
+.footer .text {
+  font-size: var(--font-size-sm);
+}
+
+.footer .separator {
+  color: color-mix(in srgb, var(--foreground) 38%, transparent);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.footer .socials {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footer .iconLink {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--glass-border) 75%, transparent);
+  text-decoration: none;
+  transition: transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.footer .iconLink svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.footer .iconLink:hover {
+  color: color-mix(in srgb, var(--foreground) 88%, transparent);
+}
+
+.footer .pulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 60%, transparent);
+  animation: pulse 1.8s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 52%, transparent);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--primary) 0%, transparent);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 0%, transparent);
+  }
+}
+
+@media (max-width: 900px) {
+  .header {
+    padding: 0.8rem 0;
+  }
+
+  .header .inner {
+    position: relative;
+    justify-content: space-between;
+    width: min(var(--layout-max-width), calc(100% - var(--layout-gutter-mobile)));
+  }
+
+  .header .title {
+    font-size: 0.98rem;
+  }
+
+  .header .nav {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.55rem);
+    right: 0;
+    width: min(260px, calc(100vw - 16px));
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.2rem;
+    padding: 0.45rem;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    background: linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--secondary) 20%, transparent),
+      color-mix(in srgb, var(--accent) 14%, transparent)
+    ),
+    color-mix(in srgb, var(--background) 88%, transparent);
+    backdrop-filter: blur(18px) saturate(125%);
+    -webkit-backdrop-filter: blur(18px) saturate(125%);
+    border-radius: var(--radius-lg);
+  }
+
+  .header .navOpen {
+    display: flex;
+  }
+
+  .header .navLink {
+    width: 100%;
+    padding: 0.62rem 0.72rem;
+    border-radius: var(--radius-md);
+  }
+
+  .header .actions {
+    width: auto;
+    justify-content: flex-end;
+    gap: 0.42rem;
+    flex-wrap: nowrap;
+  }
+
+  .header .account {
+    padding: 0.25rem;
+  }
+
+  .header .accountText {
+    display: none;
+  }
+
+  .header .menuButton {
+    display: inline-flex !important;
+  }
+
+  .footer .inner {
+    justify-content: space-between;
+    padding: 1rem 0;
+  }
+
+  .footer .left,
+  .footer .right {
+    justify-content: center;
+  }
+}
+
 .cardHeader {
   display: flex;
   flex-direction: column;
@@ -193,6 +558,7 @@ p  { font-size: clamp(1rem, 1.5vw, 1.125rem); line-height: 1.6; }
   padding: var(--padding-btn);
   border-radius: var(--radius-md);
   border: 1px solid var(--glass-border);
+  gap: 0.5rem;
   text-decoration: none;
   cursor: pointer;
   display: inline-flex;
@@ -220,7 +586,7 @@ p  { font-size: clamp(1rem, 1.5vw, 1.125rem); line-height: 1.6; }
   margin: 0;
   display: inline-block;
   font-family: var(--font-heading);
-  font-size: 0.75rem; /* 12px Fixo */
+  font-size: var(--font-size-sm);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.18em;
@@ -230,7 +596,7 @@ p  { font-size: clamp(1rem, 1.5vw, 1.125rem); line-height: 1.6; }
 .card-title {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: clamp(1.25rem, 3vw, 1.5rem); 
+  font-size: var(--font-size-heading);
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.02em;
@@ -240,7 +606,7 @@ p  { font-size: clamp(1rem, 1.5vw, 1.125rem); line-height: 1.6; }
 .card-subtitle {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   line-height: 1.6;
   color: color-mix(in srgb, var(--foreground) 78%, transparent);
 }
@@ -248,7 +614,7 @@ p  { font-size: clamp(1rem, 1.5vw, 1.125rem); line-height: 1.6; }
 .card-content {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   line-height: 1.6;
   color: color-mix(in srgb, var(--foreground) 82%, transparent);
 }
@@ -256,7 +622,7 @@ p  { font-size: clamp(1rem, 1.5vw, 1.125rem); line-height: 1.6; }
 .content-sm {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
   line-height: 1.5;
   color: color-mix(in srgb, var(--foreground) 70%, transparent);
 }

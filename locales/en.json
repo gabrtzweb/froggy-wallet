@@ -25,6 +25,14 @@
       "name": "Rodrigo"
     }
   },
+  "footer": {
+    "version": "Froggy Wallet v1.0.0",
+    "copyright": {
+      "devoloped": "Developed by",
+      "by": "Flamma Digital",
+      "social": "Social media"
+    }
+  },
   "home": {
     "badge": "Data wallet",
     "title": {
@@ -35,7 +43,7 @@
     "subtitle": "Connect your bank accounts and centralize your financial data with a modern, secure experience with Open Finance.",
     "buttons": {
       "primary": "Start now",
-      "secondary": "API workspace"
+      "secondary": "View API"
     }
   },
   "apiPage": {

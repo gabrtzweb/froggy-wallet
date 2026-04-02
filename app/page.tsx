@@ -1,5 +1,5 @@
-import { HomePage } from "./pages/home-page";
+import { Home } from "@/app/pages/home";
 
 export default function Page() {
-  return <HomePage />;
+  return <Home />;
 }

@@ -3,9 +3,8 @@
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
-import styles from "../styles/open-finance-connect.module.css";
 
-const PluggyConnect = dynamic(
+const PluggyConnectWidget = dynamic(
   () => import("react-pluggy-connect").then((mod) => mod.PluggyConnect),
   { ssr: false },
 );
@@ -15,7 +14,7 @@ type ApiTokenResponse = {
   error?: string;
 };
 
-export function OpenFinanceConnect() {
+export function PluggyConnect() {
   const t = useTranslations("testBench");
   const [clientUserId, setClientUserId] = useState("froggy-wallet-user");
   const [connectToken, setConnectToken] = useState("");
@@ -95,23 +94,23 @@ export function OpenFinanceConnect() {
   }, [t]);
 
   return (
-    <section className={`${styles.panel} glass-panel`}>
+    <section className="panel glass-panel">
       <div className="cardHeader">
         <h2 className="card-title">{t("title")}</h2>
         <p className="card-subtitle">{t("subtitle")}</p>
       </div>
 
-      <div className={styles.controls}>
+      <div className="controls">
         <input
           value={clientUserId}
           onChange={(event) => setClientUserId(event.target.value)}
-          className={styles.userInput}
+          className="userInput"
           placeholder={t("placeholder")}
         />
         <button
           type="button"
           onClick={() => void handleGenerateToken("POST")}
-          className={`${styles.button} btn-base btn-primary`}
+          className="button btn-base btn-primary"
           disabled={isLoading}
         >
           {t("buttons.post")}
@@ -119,14 +118,14 @@ export function OpenFinanceConnect() {
         <button
           type="button"
           onClick={() => void handleGenerateToken("GET")}
-          className={`${styles.button} btn-base btn-secondary`}
+          className="button btn-base btn-secondary"
           disabled={isLoading}
         >
           {t("buttons.get")}
         </button>
       </div>
 
-      <div className={`${styles.statusCard} glass-panel`}>
+      <div className="statusCard glass-panel">
         <p className="card-content">
           <strong>{t("status.label")}:</strong> {statusMessage}
         </p>
@@ -139,8 +138,8 @@ export function OpenFinanceConnect() {
       </div>
 
       {connectToken ? (
-        <div className={styles.widget}>
-          <PluggyConnect
+        <div>
+          <PluggyConnectWidget
             connectToken={connectToken}
             includeSandbox={true}
             onSuccess={(itemData) => {
@@ -155,6 +154,63 @@ export function OpenFinanceConnect() {
           />
         </div>
       ) : null}
+
+      <style jsx>{`
+        .panel {
+          width: 100%;
+          border-radius: var(--radius-lg);
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        .controls {
+          display: grid;
+          gap: 1rem;
+          grid-template-columns: 1fr;
+        }
+
+        .userInput {
+          height: 2.75rem;
+          padding: 0 var(--padding-card);
+          border-radius: var(--radius-md);
+          border: 1px solid var(--glass-border);
+          background: color-mix(in srgb, var(--glass-bg) 84%, var(--background));
+          color: var(--foreground);
+          font-size: 0.875rem;
+          outline: none;
+        }
+
+        .userInput::placeholder {
+          color: color-mix(in srgb, var(--foreground) 45%, transparent);
+        }
+
+        .userInput:focus {
+          border-color: var(--accent);
+        }
+
+        .button {
+          min-height: 2.75rem;
+        }
+
+        .button:disabled {
+          opacity: 0.5;
+        }
+
+        .statusCard {
+          padding: var(--padding-card);
+          border-radius: var(--radius-md);
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        @media (min-width: 640px) {
+          .controls {
+            grid-template-columns: 1fr auto auto;
+          }
+        }
+      `}</style>
     </section>
   );
 }
