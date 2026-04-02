@@ -81,3 +81,8 @@ Pluggy requires a public HTTPS URL (localhost is not accepted).
 1. Use Pluggy's "Save & Test Webhook".
 
     If you deploy the app later, replace the ngrok URL with your production domain.
+
+Reminder: keep real credentials only in process.env (.env.local for local dev):
+
+- PLUGGY_CLIENT_ID
+- PLUGGY_CLIENT_SECRET
