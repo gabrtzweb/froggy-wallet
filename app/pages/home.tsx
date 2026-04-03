@@ -312,7 +312,7 @@ export function Home() {
           box-shadow:
             0 28px 60px color-mix(in srgb, var(--background) 62%, transparent),
             inset 0 1px 0 color-mix(in srgb, var(--foreground) 8%, transparent);
-          padding: 0.98rem;
+          padding: var(--padding-card);
           display: grid;
           grid-template-rows: auto 1fr auto;
           gap: 0.9rem;
@@ -462,8 +462,7 @@ export function Home() {
           background: color-mix(in srgb, var(--accent) 10%, var(--glass-bg) 90%);
           z-index: 3;
           animation: floatTop 5.2s ease-in-out infinite;
-          transform: translate3d(calc(var(--parallax-x) * 0.7), calc(var(--parallax-y) * -0.2), 22px)
-            rotateX(calc(var(--tilt-y) * 0.22)) rotateY(calc(var(--tilt-x) * 0.22));
+          transform: translate3d(0, 0, 22px);
         }
 
         .floatingBottomLeft {
@@ -473,8 +472,7 @@ export function Home() {
           background: color-mix(in srgb, var(--secondary) 10%, var(--glass-bg) 90%);
           z-index: 3;
           animation: floatBottom 6.1s ease-in-out infinite;
-          transform: translate3d(calc(var(--parallax-x) * -0.7), calc(var(--parallax-y) * 0.7), 18px)
-            rotateX(calc(var(--tilt-y) * 0.18)) rotateY(calc(var(--tilt-x) * 0.18));
+          transform: translate3d(0, 0, 18px);
         }
 
         .floatingIcon {
@@ -484,25 +482,25 @@ export function Home() {
 
         @keyframes floatTop {
           0% {
-            transform: translateY(0px);
+            transform: translate3d(0, 0, 22px);
           }
           50% {
-            transform: translateY(-4px);
+            transform: translate3d(0, -4px, 22px);
           }
           100% {
-            transform: translateY(0px);
+            transform: translate3d(0, 0, 22px);
           }
         }
 
         @keyframes floatBottom {
           0% {
-            transform: translateY(0px);
+            transform: translate3d(0, 0, 18px);
           }
           50% {
-            transform: translateY(4px);
+            transform: translate3d(0, 4px, 18px);
           }
           100% {
-            transform: translateY(0px);
+            transform: translate3d(0, 0, 18px);
           }
         }
 

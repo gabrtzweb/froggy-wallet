@@ -8,7 +8,7 @@
     "nav": {
       "overview": "Overview",
       "flow": "Flow",
-      "assets": "Assets",
+      "assets": "Resources",
       "planning": "Planning"
     },
     "titles": {
@@ -70,5 +70,51 @@
         }
       }
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your profile data and financial connections.",
+    "cards": {
+      "userData": {
+        "title": "User data",
+        "imageHint": "JPG, PNG up to 2MB",
+        "userInfo": "User information"
+      },
+      "dataActions": {
+        "title": "Data actions",
+        "subtitle": "Manage backup and account data actions.",
+        "view": "View data",
+        "remove": "Remove data",
+        "export": "Export",
+        "import": "Import"
+      },
+      "connections": {
+        "title": "Connections",
+        "activeCount": "1 active",
+        "newConnection": "New connection",
+        "sample": {
+          "name": "Physical Wallet",
+          "updated": "11 days ago",
+          "type": "Manual",
+          "details": "See details"
+        }
+      }
+    }
+  },
+  "overview": {
+    "title": "Overview",
+    "subtitle": "General view of your financial data."
+  },
+  "flow": {
+    "title": "Cash Flow",
+    "subtitle": "Expenses, income and account transactions."
+  },
+  "resources": {
+    "title": "Resource Center",
+    "subtitle": "Consolidated management of investments and benefit balances."
+  },
+  "planning": {
+    "title": "Planning",
+    "subtitle": "Financial goals and plans for the future you."
   }
 }

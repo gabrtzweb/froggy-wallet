@@ -8,7 +8,7 @@
     "nav": {
       "overview": "Visão Geral",
       "flow": "Fluxo",
-      "assets": "Ativos",
+      "assets": "Recursos",
       "planning": "Planejamento"
     },
     "titles": {
@@ -70,5 +70,51 @@
         }
       }
     }
+  },
+  "settings": {
+    "title": "Configurações",
+    "subtitle": "Gerencie seus dados de perfil e conexões financeiras.",
+    "cards": {
+      "userData": {
+        "title": "Dados do usuário",
+        "imageHint": "JPG, PNG até 2MB",
+        "userInfo": "Informações do usuário"
+      },
+      "dataActions": {
+        "title": "Ações de dados",
+        "subtitle": "Gerencie backup e ações dos dados da conta.",
+        "view": "Ver dados",
+        "remove": "Remover dados",
+        "export": "Exportar",
+        "import": "Importar"
+      },
+      "connections": {
+        "title": "Conexões",
+        "activeCount": "1 ativa",
+        "newConnection": "Nova conexão",
+        "sample": {
+          "name": "Carteira Física",
+          "updated": "11 dias atrás",
+          "type": "Manual",
+          "details": "Ver detalhes"
+        }
+      }
+    }
+  },
+  "overview": {
+    "title": "Visão geral",
+    "subtitle": "Visão geral dos seus dados financeiros."
+  },
+  "flow": {
+    "title": "Fluxo de caixa",
+    "subtitle": "Despesas, receitas e transações das contas."
+  },
+  "resources": {
+    "title": "Central de recursos",
+    "subtitle": "Gestão consolidada de investimentos e saldos de benefícios."
+  },
+  "planning": {
+    "title": "Planejamento",
+    "subtitle": "Metas financeiras e planos para o seu futuro."
   }
 }

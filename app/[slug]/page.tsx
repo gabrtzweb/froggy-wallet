@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
 import type { ComponentType } from "react";
-import { Assets } from "@/app/pages/assets";
+import { Resources } from "@/app/pages/assets";
 import { Flow } from "@/app/pages/flow";
 import { Overview } from "@/app/pages/overview";
 import { Planning } from "@/app/pages/planning";
 import { Settings } from "@/app/pages/settings";
 
-type Slug = "overview" | "flow" | "assets" | "planning" | "settings";
+type Slug = "overview" | "flow" | "resources" | "planning" | "settings";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -15,7 +15,7 @@ type Props = {
 const routes: Record<Slug, ComponentType> = {
   overview: Overview,
   flow: Flow,
-  assets: Assets,
+  resources: Resources,
   planning: Planning,
   settings: Settings,
 };

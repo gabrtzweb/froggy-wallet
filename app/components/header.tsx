@@ -84,7 +84,7 @@ export function Header() {
           <Link href="/flow" className="navLink" onClick={closeMenu}>
             {t("nav.flow")}
           </Link>
-          <Link href="/assets" className="navLink" onClick={closeMenu}>
+          <Link href="/resources" className="navLink" onClick={closeMenu}>
             {t("nav.assets")}
           </Link>
           <Link href="/planning" className="navLink" onClick={closeMenu}>
@@ -119,7 +119,7 @@ export function Header() {
           </button>
           <Link href="/settings" className="account" aria-label={t("actions.account")}>
             <span className="avatar" aria-hidden="true">
-              U
+              RG
             </span>
             <span className="accountText">
               <span className="hello">{t("account.hello")} </span>
