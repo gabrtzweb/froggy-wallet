@@ -103,7 +103,33 @@
   },
   "overview": {
     "title": "Visão geral",
-    "subtitle": "Visão geral dos seus dados financeiros."
+    "subtitle": "Visão geral dos seus dados financeiros.",
+    "states": {
+      "loading": "Carregando dados...",
+      "loadingShort": "...",
+      "error": "Não foi possível carregar os dados do resumo",
+      "noBankAccounts": "Nenhuma conta bancária encontrada",
+      "noCreditCards": "Nenhum cartão de crédito encontrado",
+      "noInvestments": "Nenhum investimento encontrado"
+    },
+    "cards": {
+      "accounts": {
+        "title": "Contas bancárias"
+      },
+      "creditCards": {
+        "title": "Cartões de crédito",
+        "utilization": "{value}% utilizado"
+      },
+      "investments": {
+        "title": "Investimentos",
+        "summary": "{classes} classes - {assets} ativos ({active} ativos, {inactive} inativos)",
+        "summaryFallback": "1 classe - 1 ativo (0 ativos, 1 inativos)"
+      },
+      "balanceHistory": {
+        "title": "Evolução do saldo",
+        "aria": "Gráfico de histórico de saldo"
+      }
+    }
   },
   "flow": {
     "title": "Fluxo de caixa",

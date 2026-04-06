@@ -103,7 +103,33 @@
   },
   "overview": {
     "title": "Overview",
-    "subtitle": "General view of your financial data."
+    "subtitle": "General view of your financial data.",
+    "states": {
+      "loading": "Loading data...",
+      "loadingShort": "...",
+      "error": "Could not load overview data",
+      "noBankAccounts": "No bank accounts found",
+      "noCreditCards": "No credit cards found",
+      "noInvestments": "No investments found"
+    },
+    "cards": {
+      "accounts": {
+        "title": "Bank accounts"
+      },
+      "creditCards": {
+        "title": "Credit cards",
+        "utilization": "{value}% used"
+      },
+      "investments": {
+        "title": "Investments",
+        "summary": "{classes} classes - {assets} assets ({active} active, {inactive} inactive)",
+        "summaryFallback": "1 class - 1 asset (0 active, 1 inactive)"
+      },
+      "balanceHistory": {
+        "title": "Balance evolution",
+        "aria": "Balance history chart"
+      }
+    }
   },
   "flow": {
     "title": "Cash Flow",

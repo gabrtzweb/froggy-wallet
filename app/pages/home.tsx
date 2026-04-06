@@ -1,9 +1,67 @@
 "use client";
 
+
 import { ArrowRight, LayoutDashboard, Lock, RefreshCw, Zap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import Image from "next/image";
+// Local mapping for Apistemic domains
+const BANK_LOGOS: Record<string, { name: string; domain: string }> = {
+  Nubank: { name: "Nubank", domain: "nubank.com.br" },
+  Inter: { name: "Inter", domain: "inter.co" },
+  "Banco do Brasil": { name: "Banco do Brasil", domain: "bb.com.br" },
+};
+
+function getBankLogoUrl(domain: string) {
+  if (!domain) return "";
+  return `https://logos-api.apistemic.com/domain:${domain}`;
+}
+
+function createFallbackLogoDataUrl(name: string) {
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none">
+    <rect width="96" height="96" rx="18" fill="#0f1812"/>
+    <rect x="1" y="1" width="94" height="94" rx="17" stroke="rgba(255,255,255,0.12)"/>
+    <text x="48" y="58" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#eafaf0">${initials || "?"}</text>
+  </svg>`;
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function InstitutionLogo({ institutionName, institutionDomain, small = false }: { institutionName: string; institutionDomain: string; small?: boolean }) {
+  const [useFallbackSource, setUseFallbackSource] = useState(false);
+  const source =
+    useFallbackSource || !institutionDomain
+      ? createFallbackLogoDataUrl(institutionName)
+      : getBankLogoUrl(institutionDomain);
+
+  return (
+    <span className={`institutionLogo ${small ? "institutionLogoSm" : ""}`} aria-hidden="true">
+      <Image
+        className="institutionLogoImage"
+        src={source}
+        alt=""
+        aria-hidden="true"
+        width={small ? 28 : 34}
+        height={small ? 28 : 34}
+        sizes={small ? "28px" : "34px"}
+        quality={100}
+        unoptimized={source.endsWith('.svg') || source.startsWith('data:image/svg+xml')}
+        onError={() => {
+          setUseFallbackSource(true);
+        }}
+        priority
+      />
+    </span>
+  );
+}
 
 export function Home() {
   const t = useTranslations("home");
@@ -110,16 +168,26 @@ export function Home() {
                 </header>
 
                 <div className="walletList">
-                  {accounts.map((account) => (
-                    <div className="walletItem" key={account.name}>
-                      <span className="bankLogoPlaceholder" />
-                      <div className="walletMeta">
-                        <p className="bankName">{account.name}</p>
-                        <p className="bankUpdate">{account.updated}</p>
+                  {accounts.map((account) => {
+                    // Try to match the hardcoded name to our logo mapping
+                    const logoInfo = Object.values(BANK_LOGOS).find(
+                      (b) => account.name.toLowerCase().includes(b.name.toLowerCase())
+                    );
+                    return (
+                      <div className="walletItem" key={account.name}>
+                        {logoInfo ? (
+                          <InstitutionLogo institutionName={logoInfo.name} institutionDomain={logoInfo.domain} />
+                        ) : (
+                          <span className="bankLogoPlaceholder" />
+                        )}
+                        <div className="walletMeta">
+                          <p className="bankName">{account.name}</p>
+                          <p className="bankUpdate">{account.updated}</p>
+                        </div>
+                        <p className="bankValue">{account.value}</p>
                       </div>
-                      <p className="bankValue">{account.value}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <footer className="walletTotal">
