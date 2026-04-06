@@ -548,7 +548,7 @@ html[data-locale='pt'] .header .ptLocaleIcon {
   font-size: 0.78rem;
   font-weight: 700;
   font-family: var(--font-heading);
-  color: var(--foreground);
+  color: var(--btn-text);
   background: linear-gradient(140deg, var(--primary), var(--accent));
 }
 

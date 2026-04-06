@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { Header } from "./components/header";
 import { Footer } from "./components/footer";
+import { AppProviders } from "./providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -41,11 +42,13 @@ export default async function RootLayout({
     >
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
-          <Header />
-          <div className="app-shell">
-            {children}
-          </div>
-          <Footer />
+          <AppProviders>
+            <Header />
+            <div className="app-shell">
+              {children}
+            </div>
+            <Footer />
+          </AppProviders>
         </NextIntlClientProvider>
       </body>
     </html>

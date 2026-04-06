@@ -3,7 +3,8 @@
 import { CreditCard, Landmark, LineChart, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
+import { useCachedApi } from "@/app/lib/use-cached-api";
 
 type OverviewAccount = {
   id: string;
@@ -56,12 +57,8 @@ type OverviewData = {
   totalAssets: number;
 };
 
-function formatCurrency(value: number, locale: string, currencyCode: string) {
-  const formatted = new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: currencyCode,
-    maximumFractionDigits: 2,
-  }).format(value);
+function formatCurrency(value: number, formatter: Intl.NumberFormat, currencyCode: string) {
+  const formatted = formatter.format(value);
 
   if (currencyCode === "BRL") {
     return formatted.replace(/^R\$\s*/, "R$ ");
@@ -177,7 +174,7 @@ function createFallbackLogoDataUrl(name: string) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-function InstitutionLogo({
+const InstitutionLogo = memo(function InstitutionLogo({
   institutionName,
   institutionDomain,
   small = false,
@@ -187,10 +184,8 @@ function InstitutionLogo({
   small?: boolean;
 }) {
   const [useFallbackSource, setUseFallbackSource] = useState(false);
-  const source =
-    useFallbackSource || !institutionDomain
-      ? createFallbackLogoDataUrl(institutionName)
-      : getBankLogoUrl(institutionDomain);
+  const fallbackSource = useMemo(() => createFallbackLogoDataUrl(institutionName), [institutionName]);
+  const source = useFallbackSource || !institutionDomain ? fallbackSource : getBankLogoUrl(institutionDomain);
 
   // For SVGs, let them fill the badge edge-to-edge. For raster, use cover.
   // Next.js Image will not blur SVGs, but for PNG/JPG, we want sharpness.
@@ -205,62 +200,38 @@ function InstitutionLogo({
         height={small ? 28 : 34}
         sizes={small ? "28px" : "34px"}
         quality={100}
-        unoptimized={source.endsWith('.svg') || source.startsWith('data:image/svg+xml')}
+        unoptimized={source.endsWith(".svg") || source.startsWith("data:image/svg+xml")}
         onError={() => {
           setUseFallbackSource(true);
         }}
-        priority
       />
     </span>
   );
-}
+});
 
 export function Overview() {
   const locale = useLocale();
   const t = useTranslations("overview");
-  const [data, setData] = useState<OverviewData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const abortController = new AbortController();
-
-    async function loadOverview() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await fetch(`/api/overview?locale=${encodeURIComponent(locale)}`, {
-          signal: abortController.signal,
-        });
-
-        const payload = (await response.json()) as OverviewData & { error?: string };
-
-        if (!response.ok) {
-          throw new Error(payload.error ?? "Failed to load overview data");
-        }
-
-        setData(payload);
-      } catch (loadError) {
-        if ((loadError as { name?: string }).name === "AbortError") {
-          return;
-        }
-
-        setError(loadError instanceof Error ? loadError.message : "Failed to load overview data");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    void loadOverview();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [locale]);
+  const { data, errorMessage, isInitialLoading } = useCachedApi<OverviewData>(
+    `/api/overview?locale=${encodeURIComponent(locale)}`,
+  );
 
   const currencyCode = data?.currencyCode ?? "BRL";
-  const chartPath = useMemo(() => buildLinePath(data?.balanceHistory ?? []), [data]);
+  const formatMoney = useMemo(() => {
+    const formatter = new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: currencyCode,
+      maximumFractionDigits: 2,
+    });
+
+    return (value: number) => formatCurrency(value, formatter, currencyCode);
+  }, [locale, currencyCode]);
+
+  const topBankAccounts = useMemo(() => (data?.bankAccounts ?? []).slice(0, 4), [data?.bankAccounts]);
+  const topCreditCards = useMemo(() => (data?.creditCards ?? []).slice(0, 4), [data?.creditCards]);
+  const topInvestmentClasses = useMemo(() => (data?.investmentClasses ?? []).slice(0, 3), [data?.investmentClasses]);
+  const balanceHistory = useMemo(() => data?.balanceHistory ?? [], [data?.balanceHistory]);
+  const chartPath = useMemo(() => buildLinePath(balanceHistory), [balanceHistory]);
   const chartFillPath = useMemo(() => {
     if (!chartPath) {
       return "";
@@ -268,11 +239,16 @@ export function Overview() {
 
     return `${chartPath} L 1000 220 L 8 220 Z`;
   }, [chartPath]);
-  const topBankAccounts = (data?.bankAccounts ?? []).slice(0, 4);
-  const topCreditCards = (data?.creditCards ?? []).slice(0, 4);
-  const topInvestmentClasses = (data?.investmentClasses ?? []).slice(0, 3);
-  const balanceHistory = data?.balanceHistory ?? [];
-  const hasData = Boolean(data && !error);
+  const investmentSummary = useMemo(() => {
+    const classes = data?.investmentClasses ?? [];
+    return {
+      classCount: classes.length,
+      active: classes.reduce((sum, investmentClass) => sum + investmentClass.activeCount, 0),
+      inactive: classes.reduce((sum, investmentClass) => sum + investmentClass.inactiveCount, 0),
+    };
+  }, [data?.investmentClasses]);
+  const hasData = Boolean(data);
+  const loading = isInitialLoading;
 
   return (
     <div className="app-page">
@@ -282,7 +258,7 @@ export function Overview() {
           <p>{t("subtitle")}</p>
         </header>
 
-        {error ? <p className="statusBanner">{t("states.error")}: {error}</p> : null}
+        {errorMessage ? <p className="statusBanner">{t("states.error")}: {errorMessage}</p> : null}
 
         <section className="overviewGrid" aria-label={t("title")}>
           <article className="card-panel panelTop">
@@ -295,7 +271,7 @@ export function Overview() {
 
             <div className="card-panel-body panelBodyGap">
               <p className="metricValue">
-                {hasData ? formatCurrency(data?.bankTotal ?? 0, locale, currencyCode) : loading ? t("states.loadingShort") : formatCurrency(0, locale, currencyCode)}
+                {hasData ? formatMoney(data?.bankTotal ?? 0) : loading ? t("states.loadingShort") : formatMoney(0)}
               </p>
 
               <div className="accountList">
@@ -310,7 +286,7 @@ export function Overview() {
                             <p>{identity.name}</p>
                             <span>{account.number}</span>
                           </div>
-                          <strong>{formatCurrency(account.balance, locale, account.currencyCode)}</strong>
+                          <strong>{formatMoney(account.balance)}</strong>
                         </div>
                     );
                   })
@@ -331,7 +307,7 @@ export function Overview() {
 
             <div className="card-panel-body panelBodyGap">
               <p className="metricValue creditValue">
-                {hasData ? formatCurrency(data?.creditOutstanding ?? 0, locale, currencyCode) : loading ? t("states.loadingShort") : formatCurrency(0, locale, currencyCode)}
+                {hasData ? formatMoney(data?.creditOutstanding ?? 0) : loading ? t("states.loadingShort") : formatMoney(0)}
               </p>
               <p className="smallMeta">
                 {hasData ? t("cards.creditCards.utilization", { value: Math.round((data?.creditUtilization ?? 0) * 100) }) : t("cards.creditCards.utilization", { value: 0 })}
@@ -356,7 +332,7 @@ export function Overview() {
                             <p>{account.displayName}</p>
                             <span>{account.maskedNumber}</span>
                           </div>
-                          <strong>{formatCurrency(account.balance, locale, account.currencyCode)}</strong>
+                          <strong>{formatMoney(account.balance)}</strong>
                         </div>
                     );
                   })
@@ -377,15 +353,15 @@ export function Overview() {
 
             <div className="card-panel-body panelBodyGap">
               <p className="metricValue investValue">
-                {hasData ? formatCurrency(data?.investmentTotal ?? 0, locale, currencyCode) : loading ? t("states.loadingShort") : formatCurrency(0, locale, currencyCode)}
+                {hasData ? formatMoney(data?.investmentTotal ?? 0) : loading ? t("states.loadingShort") : formatMoney(0)}
               </p>
               <p className="smallMeta">
                 {hasData
                   ? t("cards.investments.summary", {
-                      classes: data?.investmentClasses.length ?? 0,
+                      classes: investmentSummary.classCount,
                       assets: data?.investments.length ?? 0,
-                      active: data?.investmentClasses.reduce((sum, investmentClass) => sum + investmentClass.activeCount, 0) ?? 0,
-                      inactive: data?.investmentClasses.reduce((sum, investmentClass) => sum + investmentClass.inactiveCount, 0) ?? 0,
+                      active: investmentSummary.active,
+                      inactive: investmentSummary.inactive,
                     })
                   : t("cards.investments.summaryFallback")}
               </p>
@@ -396,7 +372,7 @@ export function Overview() {
                     <span>
                       {investmentClass.name} ({investmentClass.count})
                     </span>
-                    <strong>{formatCurrency(investmentClass.balance, locale, currencyCode)}</strong>
+                    <strong>{formatMoney(investmentClass.balance)}</strong>
                   </div>
                 ))
               ) : (
@@ -420,10 +396,10 @@ export function Overview() {
             <div className="card-panel-body chartBody">
               <p className="metricValue">
                 {hasData
-                  ? formatCurrency(data?.balanceHistory.at(-1)?.value ?? 0, locale, currencyCode)
+                  ? formatMoney(data?.balanceHistory.at(-1)?.value ?? 0)
                   : loading
                     ? t("states.loadingShort")
-                    : formatCurrency(0, locale, currencyCode)}
+                    : formatMoney(0)}
               </p>
 
               <div className="chartMock">

@@ -13,7 +13,8 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useCachedApi } from "@/app/lib/use-cached-api";
 
 type RawPluggyAccount = {
   name?: string;
@@ -214,40 +215,17 @@ function getConnectionSummary(item: RawPluggyItem): ConnectionSummary {
 export function Settings() {
   const t = useTranslations("settings");
   const locale = useLocale();
-  const [connections, setConnections] = useState<ConnectionSummary[]>([]);
-  const [connectionsError, setConnectionsError] = useState<string | null>(null);
+  const { data, errorMessage, isInitialLoading } = useCachedApi<RawPluggyResponse>(
+    "/api/debug/pluggy",
+  );
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function loadConnections() {
-      try {
-        setConnectionsError(null);
-        const response = await fetch("/api/debug/pluggy", { signal: controller.signal });
-        const payload = (await response.json()) as RawPluggyResponse;
-
-        if (!response.ok) {
-          throw new Error(payload.error ?? "Failed to load connections");
-        }
-
-        const items = payload.items ?? [];
-        setConnections(items.map(getConnectionSummary));
-      } catch (error) {
-        if ((error as { name?: string }).name === "AbortError") {
-          return;
-        }
-
-        setConnections([]);
-        setConnectionsError(error instanceof Error ? error.message : "Failed to load connections");
-      }
-    }
-
-    void loadConnections();
-
-    return () => {
-      controller.abort();
-    };
-  }, []);
+  const connections = useMemo(() => {
+    const items = data?.items ?? [];
+    return items.map(getConnectionSummary);
+  }, [data]);
+  const connectionsError = errorMessage;
+  const showFirstLoadState = isInitialLoading;
+  const loadingConnectionsLabel = locale === "pt-BR" ? "Carregando conexoes..." : "Loading connections...";
 
   const desktopSlots = useMemo(() => {
     const cards = connections.map((connection) => ({
@@ -337,6 +315,7 @@ export function Settings() {
 
             <div className="card-panel-body">
               {connectionsError ? <p className="connectionError">{connectionsError}</p> : null}
+              {showFirstLoadState ? <p className="connectionLoading">{loadingConnectionsLabel}</p> : null}
               <div className="connectionGrid">
                 {desktopSlots.map((slot) => {
                   if (slot.type === "placeholder") {
@@ -459,6 +438,13 @@ export function Settings() {
         .connectionError {
           padding-bottom: 0.68rem;
           color: color-mix(in srgb, #e44b4b 85%, var(--foreground) 15%);
+          font-size: var(--font-size-sm);
+        }
+
+        .connectionLoading {
+          margin: 0;
+          padding-bottom: 0.68rem;
+          color: color-mix(in srgb, var(--foreground) 58%, transparent);
           font-size: var(--font-size-sm);
         }
 

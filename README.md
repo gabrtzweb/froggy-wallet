@@ -48,3 +48,17 @@ Reminder: keep real credentials only in process.env (.env.local for local dev):
 
 - PLUGGY_CLIENT_ID
 - PLUGGY_CLIENT_SECRET
+
+## Client Data Fetching Standard
+
+Use SWR for all client-side API data in current and future pages (overview, settings, flow, planning, assets, and new routes).
+
+Rules:
+
+- Use `useCachedApi` from `app/lib/use-cached-api.ts` for API requests.
+- Use stable endpoint keys (example: `/api/overview?locale=...`).
+- Show loading UI only when `isInitialLoading` is true.
+- Keep showing cached data while SWR revalidates in the background.
+- Surface `errorMessage` but avoid clearing existing UI when cached data exists.
+
+Global defaults are configured once in `app/providers.tsx` through `SWRConfig`.
