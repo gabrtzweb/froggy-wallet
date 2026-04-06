@@ -170,7 +170,7 @@ export function Settings() {
               <p className="card-panel-description">{t("cards.dataActions.subtitle")}</p>
 
               <div className="actionsGrid">
-                <Link href="/debug/pluggy" className="card-btn-outline btn-sm-outline">
+                <Link href="/api/debug/pluggy" className="card-btn-outline btn-sm-outline">
                   <Eye size={14} aria-hidden="true" />
                   {t("cards.dataActions.view")}
                 </Link>
