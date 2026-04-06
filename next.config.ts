@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
         hostname: "logos-api.apistemic.com",
       },
     ],
+    qualities: [75, 100],
   },
 };
 

@@ -120,8 +120,8 @@ export function Home() {
   }
 
   return (
-    <div className="page">
-      <main className="main">
+    <div className="app-page app-page--centered">
+      <main className="app-page-main app-page-main--block">
         <section className="hero">
           <div className="copyBlock">
             <p className="badge">
@@ -208,23 +208,9 @@ export function Home() {
             </div>
           </div>
         </section>
-      </main>
+        </main>
 
-      <style jsx>{`
-        .page {
-          min-height: calc(100svh - 94px - 72px);
-          display: flex;
-          align-items: center;
-          padding: var(--padding-card) 0;
-          color: var(--foreground);
-        }
-
-        .main {
-          width: min(1200px, calc(100% - 24px));
-          margin: 0 auto;
-          display: block;
-        }
-
+        <style jsx>{`
         .hero {
           display: grid;
           grid-template-columns: 1.15fr 1fr;
@@ -589,21 +575,9 @@ export function Home() {
           color: color-mix(in srgb, var(--foreground) 80%, transparent);
         }
 
-        @media (max-width: 1024px) {
-          .page {
-            min-height: calc(100svh - 132px - 72px);
-          }
-        }
-
         @media (max-width: 640px) {
-          .page {
-            min-height: auto;
+          .app-page--centered {
             align-items: flex-start;
-            padding: calc(var(--padding-card) * 0.9) 0 var(--padding-card);
-          }
-
-          .main {
-            width: min(1200px, calc(100% - 40px));
           }
 
           .hero {
@@ -667,7 +641,7 @@ export function Home() {
             transform: none;
           }
         }
-      `}</style>
-    </div>
+        `}</style>
+      </div>
   );
 }

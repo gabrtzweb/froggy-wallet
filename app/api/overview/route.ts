@@ -92,6 +92,59 @@ function getInstitutionDomain(institutionUrl: string | null | undefined) {
   }
 }
 
+function isGenericInstitutionName(value: string | null | undefined) {
+  if (!value) {
+    return true;
+  }
+
+  const normalizedValue = normalizeErrorName(value);
+  return (
+    !normalizedValue ||
+    normalizedValue === "pluggy" ||
+    normalizedValue === "meu pluggy" ||
+    normalizedValue === "meupluggy"
+  );
+}
+
+function normalizeErrorName(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function getStringCandidate(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+const BANK_CODE_MAPPINGS: Record<string, { name: string; domain: string }> = {
+  "001": { name: "Banco do Brasil", domain: "bb.com.br" },
+  "033": { name: "Santander", domain: "santander.com.br" },
+  "077": { name: "Inter", domain: "inter.co" },
+  "104": { name: "Caixa", domain: "caixa.gov.br" },
+  "237": { name: "Bradesco", domain: "bradesco.com.br" },
+  "260": { name: "Nubank", domain: "nubank.com.br" },
+  "341": { name: "Itaú", domain: "itau.com.br" },
+  "336": { name: "C6 Bank", domain: "c6bank.com.br" },
+  "748": { name: "Sicredi", domain: "sicredi.com.br" },
+  "756": { name: "Sicoob", domain: "sicoob.com.br" },
+};
+
+function getBankCodeFromTransferNumber(transferNumber: string | null | undefined) {
+  if (!transferNumber) {
+    return "";
+  }
+
+  const match = transferNumber.match(/^0*(\d{3})[\/-]/);
+  return match?.[1] ?? "";
+}
+
+function getInstitutionIdentityFromBankCode(code: string) {
+  return BANK_CODE_MAPPINGS[code] ?? { name: "", domain: "" };
+}
+
 function getInstitutionIdentityFromDomain(domain: string) {
   const normalizedDomain = domain.toLowerCase();
 
@@ -124,6 +177,102 @@ function getInstitutionIdentityFromDomain(domain: string) {
   return {
     name: match?.name ?? "",
     domain: match?.domain ?? "",
+  };
+}
+
+function getBankIdentity(rawName: string) {
+  const normalizedName = normalizeErrorName(rawName);
+
+  const mappings: Array<{ test: RegExp; name: string; domain: string }> = [
+    { test: /nu pagamentos|nubank|nu bank/, name: "Nubank", domain: "nubank.com.br" },
+    { test: /banco inter|\binter\b/, name: "Inter", domain: "inter.co" },
+    { test: /banco do brasil|\bbb\b/, name: "Banco do Brasil", domain: "bb.com.br" },
+    { test: /itau|itaú/, name: "Itaú", domain: "itau.com.br" },
+    { test: /bradesco/, name: "Bradesco", domain: "bradesco.com.br" },
+    { test: /santander/, name: "Santander", domain: "santander.com.br" },
+    { test: /caixa/, name: "Caixa", domain: "caixa.gov.br" },
+    { test: /c6/, name: "C6 Bank", domain: "c6bank.com.br" },
+    { test: /neon/, name: "Neon", domain: "neon.com.br" },
+    { test: /next/, name: "next", domain: "next.me" },
+    { test: /picpay/, name: "PicPay", domain: "picpay.com" },
+    { test: /mercado pago|mercadopago/, name: "Mercado Pago", domain: "mercadopago.com.br" },
+    { test: /sicoob/, name: "Sicoob", domain: "sicoob.com.br" },
+    { test: /sicredi/, name: "Sicredi", domain: "sicredi.com.br" },
+    { test: /btg/, name: "BTG Pactual", domain: "btgpactual.com" },
+    { test: /will bank/, name: "Will Bank", domain: "willbank.com.br" },
+    { test: /pagbank|pagseguro/, name: "PagBank", domain: "pagbank.com.br" },
+    { test: /original/, name: "Banco Original", domain: "bancooriginal.com.br" },
+    { test: /pan/, name: "Banco Pan", domain: "bancopan.com.br" },
+  ];
+
+  const match = mappings.find((mapping) => mapping.test.test(normalizedName));
+
+  return {
+    name: match?.name ?? "",
+    domain: match?.domain ?? "",
+  };
+}
+
+function getInstitutionIdentityFromItem(item: {
+  connector?: {
+    name?: string | null;
+    institutionUrl?: string | null;
+  };
+}, accounts: Array<Record<string, unknown>>) {
+  const bankCodeCandidates = accounts
+    .map((account) => {
+      const bankData = account.bankData as { transferNumber?: string | null } | null | undefined;
+      return getBankCodeFromTransferNumber(bankData?.transferNumber);
+    })
+    .filter(Boolean);
+
+  for (const code of bankCodeCandidates) {
+    const identity = getInstitutionIdentityFromBankCode(code);
+    if (identity.name) {
+      return identity;
+    }
+  }
+
+  const domainCandidates = [
+    getInstitutionDomain(item.connector?.institutionUrl),
+    ...accounts.flatMap((account) => [
+      getInstitutionDomain(getStringCandidate(account.institutionUrl)),
+      getInstitutionDomain(getStringCandidate(account.institutionDomain)),
+      getInstitutionDomain(getStringCandidate(account.institutionWebsite)),
+    ]),
+  ].filter(Boolean);
+
+  for (const domain of domainCandidates) {
+    const identity = getInstitutionIdentityFromDomain(domain);
+    if (identity.name) {
+      return identity;
+    }
+  }
+
+  const nameCandidates = [
+    getStringCandidate(item.connector?.name),
+    ...accounts.flatMap((account) => [
+      getStringCandidate(account.institutionName),
+      getStringCandidate(account.institutionLabel),
+      getStringCandidate(account.bankName),
+      getStringCandidate(account.financialInstitutionName),
+      getStringCandidate(account.providerName),
+      getStringCandidate(account.connectorName),
+    ]),
+  ].filter((value) => value && !isGenericInstitutionName(value));
+
+  for (const name of nameCandidates) {
+    const identity = getBankIdentity(name);
+    if (identity.name) {
+      return identity;
+    }
+  }
+
+  const fallbackName = nameCandidates[0] ?? "";
+
+  return {
+    name: fallbackName,
+    domain: getInstitutionDomain(item.connector?.institutionUrl),
   };
 }
 
@@ -176,16 +325,22 @@ function buildMonthlyHistory(
   locale: string,
 ) {
   const now = new Date();
-  const months: Array<{ key: string; label: string; net: number }> = [];
-  const monthCursor = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1));
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth();
+  const currentDay = now.getUTCDate();
+  const days: Array<{ key: string; label: string; net: number }> = Array.from(
+    { length: currentDay },
+    (_, index) => {
+      const day = index + 1;
+      const current = new Date(Date.UTC(year, month, day));
 
-  for (let index = 0; index < 12; index += 1) {
-    const current = new Date(Date.UTC(monthCursor.getUTCFullYear(), monthCursor.getUTCMonth() + index, 1));
-    const key = `${current.getUTCFullYear()}-${String(current.getUTCMonth() + 1).padStart(2, "0")}`;
-    const label = new Intl.DateTimeFormat(locale, { month: "short" }).format(current);
-
-    months.push({ key, label, net: 0 });
-  }
+      return {
+        key: `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
+        label: new Intl.DateTimeFormat(locale, { day: "numeric" }).format(current),
+        net: 0,
+      };
+    },
+  );
 
   for (const transaction of transactions) {
     const date = new Date(transaction.date);
@@ -193,8 +348,14 @@ function buildMonthlyHistory(
       continue;
     }
 
-    const key = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
-    const bucket = months.find((month) => month.key === key);
+    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month || date.getUTCDate() > currentDay) {
+      continue;
+    }
+
+    const key = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(
+      date.getUTCDate(),
+    ).padStart(2, "0")}`;
+    const bucket = days.find((day) => day.key === key);
 
     if (!bucket) {
       continue;
@@ -207,11 +368,11 @@ function buildMonthlyHistory(
 
   let runningTotal = 0;
 
-  return months.map((month) => {
-    runningTotal += month.net;
+  return days.map((day) => {
+    runningTotal += day.net;
 
     return {
-      label: month.label,
+      label: day.label,
       value: Number(runningTotal.toFixed(2)),
     };
   });
@@ -265,10 +426,9 @@ export async function GET(req: Request) {
           pluggy.fetchInvestments(itemId, undefined, { pageSize: 500 }),
         ]);
 
-        const connectorDomain = getInstitutionDomain(item.connector.institutionUrl);
-        const institutionIdentity = getInstitutionIdentityFromDomain(connectorDomain);
+        const institutionIdentity = getInstitutionIdentityFromItem(item, accountsResponse.results as Array<Record<string, unknown>>);
         const institutionName = institutionIdentity.name || item.connector.name;
-        const institutionDomain = institutionIdentity.domain || connectorDomain;
+        const institutionDomain = institutionIdentity.domain || getInstitutionDomain(item.connector.institutionUrl);
         const institutionLogoUrl = item.connector.imageUrl;
 
         const bankAccounts = accountsResponse.results.filter(

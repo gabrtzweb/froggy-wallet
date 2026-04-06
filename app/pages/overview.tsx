@@ -57,11 +57,17 @@ type OverviewData = {
 };
 
 function formatCurrency(value: number, locale: string, currencyCode: string) {
-  return new Intl.NumberFormat(locale, {
+  const formatted = new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currencyCode,
     maximumFractionDigits: 2,
   }).format(value);
+
+  if (currencyCode === "BRL") {
+    return formatted.replace(/^R\$\s*/, "R$ ");
+  }
+
+  return formatted;
 }
 
 function buildLinePath(values: Array<{ value: number }>) {
@@ -94,11 +100,6 @@ function buildLinePath(values: Array<{ value: number }>) {
 type BankIdentity = {
   name: string;
   domain: string;
-};
-
-const KNOWN_ITEMS: Record<string, { name: string; domain: string }> = {
-  "26edf1e1-f9f1-466f-90b5-946cf3702339": { name: "Nubank", domain: "nubank.com.br" },
-  "65178410-02ad-4ab6-a0ea-8f27582436a0": { name: "Inter", domain: "inter.co" },
 };
 
 function normalizeText(value: string) {
@@ -145,10 +146,6 @@ function getBankIdentity(rawName: string): BankIdentity {
 function getDisplayBankIdentity(
   account: Pick<OverviewAccount, "name" | "institutionName" | "institutionDomain" | "itemId">,
 ) {
-  if (account.itemId && KNOWN_ITEMS[account.itemId]) {
-    return KNOWN_ITEMS[account.itemId];
-  }
-
   const combinedName = `${account.institutionName || ""} ${account.name || ""}`;
   const identity = getBankIdentity(combinedName);
 
@@ -274,11 +271,12 @@ export function Overview() {
   const topBankAccounts = (data?.bankAccounts ?? []).slice(0, 4);
   const topCreditCards = (data?.creditCards ?? []).slice(0, 4);
   const topInvestmentClasses = (data?.investmentClasses ?? []).slice(0, 3);
+  const balanceHistory = data?.balanceHistory ?? [];
   const hasData = Boolean(data && !error);
 
   return (
-    <div className="overviewPage">
-      <main className="overviewMain">
+    <div className="app-page">
+      <main className="app-page-main app-page-main--grid">
         <header className="page-header-block">
           <h1>{t("title")}</h1>
           <p>{t("subtitle")}</p>
@@ -445,8 +443,12 @@ export function Overview() {
                   {chartPath ? <path d={chartPath} className="lineStroke" /> : null}
                 </svg>
 
-                <div className="chartLabels" aria-hidden="true">
-                  {(data?.balanceHistory ?? []).map((point) => (
+                <div
+                  className="chartLabels"
+                  aria-hidden="true"
+                  style={{ gridTemplateColumns: `repeat(${Math.max(balanceHistory.length, 1)}, minmax(0, 1fr))` }}
+                >
+                  {balanceHistory.map((point) => (
                     <span key={point.label}>{point.label}</span>
                   ))}
                 </div>
@@ -457,19 +459,6 @@ export function Overview() {
       </main>
 
       <style jsx>{`
-        .overviewPage {
-          min-height: calc(100svh - 94px - 72px);
-          padding: var(--padding-card) 0;
-          color: var(--foreground);
-        }
-
-        .overviewMain {
-          width: min(1200px, calc(100% - 24px));
-          margin: 0 auto;
-          display: grid;
-          gap: 1rem;
-        }
-
         .overviewGrid {
           display: grid;
           gap: 1rem;
@@ -651,7 +640,6 @@ export function Overview() {
 
         .chartLabels {
           display: grid;
-          grid-template-columns: repeat(12, minmax(0, 1fr));
           gap: 0.3rem;
           font-size: var(--font-size-sm);
           color: color-mix(in srgb, var(--foreground) 44%, transparent);
@@ -673,12 +661,6 @@ export function Overview() {
           }
         }
 
-        @media (max-width: 1024px) {
-          .overviewPage {
-            min-height: calc(100svh - 132px - 72px);
-          }
-        }
-
         @media (max-width: 760px) {
           .overviewGrid {
             grid-template-columns: 1fr;
@@ -691,22 +673,10 @@ export function Overview() {
         }
 
         @media (max-width: 640px) {
-          .overviewPage {
-            min-height: auto;
-            padding: calc(var(--padding-card) * 0.9) 0 var(--padding-card);
-          }
-
-          .overviewMain {
-            width: min(1200px, calc(100% - 40px));
-          }
-
           .chartMock {
             height: 152px;
           }
 
-          .chartLabels {
-            grid-template-columns: repeat(6, minmax(0, 1fr));
-          }
         }
       `}</style>
     </div>

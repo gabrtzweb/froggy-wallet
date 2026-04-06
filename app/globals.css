@@ -29,7 +29,7 @@
   --font-size-hero: clamp(2.5rem, 1.4rem + 3.2vw, 3rem);
   --layout-max-width: 1200px;
   --layout-gutter-desktop: 24px;
-  --layout-gutter-mobile: 16px;
+  --layout-gutter-mobile: 40px;
   --card-header-height: 46px;
   --card-header-padding: 0.72rem 0.86rem;
   --card-body-padding: 0.9rem 0.86rem;
@@ -110,15 +110,53 @@ body {
   padding-top: 94px;
 }
 
+.app-page {
+  min-height: calc(100svh - 94px - 72px);
+  padding: var(--padding-card) 0;
+  color: var(--foreground);
+}
+
+.app-page--centered {
+  display: flex;
+  align-items: center;
+}
+
+.app-page-main {
+  width: min(var(--layout-max-width), calc(100% - var(--layout-gutter-desktop)));
+  margin: 0 auto;
+}
+
+.app-page-main--grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.app-page-main--block {
+  display: block;
+}
+
 @media (max-width: 1024px) {
   .app-shell {
     padding-top: 132px;
+  }
+
+  .app-page {
+    min-height: calc(100svh - 132px - 72px);
   }
 }
 
 @media (max-width: 640px) {
   .app-shell {
     padding-top: 162px;
+  }
+
+  .app-page {
+    min-height: auto;
+    padding: calc(var(--padding-card) * 0.9) 0 var(--padding-card);
+  }
+
+  .app-page-main {
+    width: min(var(--layout-max-width), calc(100% - var(--layout-gutter-mobile)));
   }
 }
 

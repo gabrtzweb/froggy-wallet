@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
-type Locale = "en" | "pt";
+type Locale = "en" | "pt-BR";
 
 function getPreferredTheme(): Theme {
   if (typeof window === "undefined") {
@@ -48,7 +48,7 @@ export function Header() {
   }
 
   function handleLanguageToggle() {
-    const nextLocale = locale === "en" ? "pt" : "en";
+    const nextLocale = locale === "en" ? "pt-BR" : "en";
 
     document.documentElement.setAttribute("data-locale", nextLocale);
     document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000; samesite=lax`;

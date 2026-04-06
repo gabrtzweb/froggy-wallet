@@ -3,7 +3,7 @@ import { getRequestConfig } from "next-intl/server";
 
 export default getRequestConfig(async () => {
   const localeCookie = (await cookies()).get("NEXT_LOCALE")?.value;
-  const locale = localeCookie === "pt" ? "pt" : "en";
+  const locale = localeCookie === "pt" || localeCookie === "pt-BR" ? "pt-BR" : "en";
 
   return {
     locale,
