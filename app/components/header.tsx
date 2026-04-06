@@ -65,7 +65,7 @@ export function Header() {
 
   return (
     <header className="header header-glass">
-      <div className="inner">
+      <div className="inner app-page-main">
         <Link href="/" className="brand" aria-label={t("aria.dashboard")}>
           <span className="logo" aria-hidden="true">
             🐸

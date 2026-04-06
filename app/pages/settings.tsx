@@ -10,10 +10,14 @@ import {
   Upload,
   UserCircle2,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
+import { InstitutionLogo } from "@/app/components/institution-logo";
+import {
+  getInstitutionLogoUrl,
+  resolveInstitutionIdentity,
+} from "@/app/lib/institution-utils";
 import { useCachedApi } from "@/app/lib/use-cached-api";
 
 type RawPluggyAccount = {
@@ -53,91 +57,6 @@ type ConnectionSummary = {
   updatedAt: string | null;
 };
 
-const BANK_CODE_MAP: Record<string, { name: string; domain: string }> = {
-  "001": { name: "Banco do Brasil", domain: "bb.com.br" },
-  "033": { name: "Santander", domain: "santander.com.br" },
-  "077": { name: "Inter", domain: "inter.co" },
-  "104": { name: "Caixa", domain: "caixa.gov.br" },
-  "237": { name: "Bradesco", domain: "bradesco.com.br" },
-  "260": { name: "Nubank", domain: "nubank.com.br" },
-  "336": { name: "C6 Bank", domain: "c6bank.com.br" },
-  "341": { name: "Itaú", domain: "itau.com.br" },
-  "748": { name: "Sicredi", domain: "sicredi.com.br" },
-  "756": { name: "Sicoob", domain: "sicoob.com.br" },
-};
-
-function normalizeText(value: string) {
-  return value.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
-}
-
-function isGenericInstitutionName(value: string | null | undefined) {
-  if (!value) {
-    return true;
-  }
-
-  const normalized = normalizeText(value).trim();
-  return normalized === "meupluggy" || normalized === "meu pluggy" || normalized === "pluggy";
-}
-
-function inferIdentityByName(rawName: string) {
-  const normalized = normalizeText(rawName);
-
-  const mappings: Array<{ test: RegExp; name: string; domain: string }> = [
-    { test: /nu pagamentos|nubank|nu bank/, name: "Nubank", domain: "nubank.com.br" },
-    { test: /banco inter|\binter\b/, name: "Inter", domain: "inter.co" },
-    { test: /banco do brasil|\bbb\b/, name: "Banco do Brasil", domain: "bb.com.br" },
-    { test: /itau|itaú/, name: "Itaú", domain: "itau.com.br" },
-    { test: /bradesco/, name: "Bradesco", domain: "bradesco.com.br" },
-    { test: /santander/, name: "Santander", domain: "santander.com.br" },
-    { test: /caixa/, name: "Caixa", domain: "caixa.gov.br" },
-    { test: /c6/, name: "C6 Bank", domain: "c6bank.com.br" },
-    { test: /sicoob/, name: "Sicoob", domain: "sicoob.com.br" },
-    { test: /sicredi/, name: "Sicredi", domain: "sicredi.com.br" },
-  ];
-
-  const match = mappings.find((mapping) => mapping.test.test(normalized));
-  return {
-    name: match?.name ?? "",
-    domain: match?.domain ?? "",
-  };
-}
-
-function getDomainFromUrl(urlValue: string | null | undefined) {
-  if (!urlValue) {
-    return "";
-  }
-
-  try {
-    return new URL(urlValue).hostname.replace(/^www\./, "");
-  } catch {
-    return "";
-  }
-}
-
-function getBankCode(transferNumber: string | null | undefined) {
-  if (!transferNumber) {
-    return "";
-  }
-
-  const match = transferNumber.match(/^0*(\d{3})[\/-]/);
-  return match?.[1] ?? "";
-}
-
-function getLogoUrl(domain: string) {
-  return domain ? `https://logos-api.apistemic.com/domain:${domain}` : "";
-}
-
-function createInitials(value: string) {
-  const initials = value
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-
-  return initials || "?";
-}
-
 function formatUpdatedRelative(dateValue: string | null | undefined, locale: string) {
   if (!dateValue) {
     return locale === "pt-BR" ? "Sem atualizacao" : "No updates";
@@ -167,47 +86,13 @@ function formatUpdatedRelative(dateValue: string | null | undefined, locale: str
 }
 
 function getConnectionSummary(item: RawPluggyItem): ConnectionSummary {
-  const bankCodeIdentity = item.accounts
-    .map((account) => getBankCode(account.bankData?.transferNumber))
-    .map((bankCode) => BANK_CODE_MAP[bankCode])
-    .find(Boolean);
-
-  if (bankCodeIdentity) {
-    return {
-      itemId: item.itemId,
-      name: bankCodeIdentity.name,
-      domain: bankCodeIdentity.domain,
-      logoUrl: getLogoUrl(bankCodeIdentity.domain),
-      updatedAt: item.item?.lastUpdatedAt ?? item.item?.updatedAt ?? null,
-    };
-  }
-
-  const accountNames = item.accounts
-    .flatMap((account) => [account.institutionName, account.marketingName, account.name])
-    .filter((value): value is string => Boolean(value) && !isGenericInstitutionName(value));
-
-  const nameIdentity = accountNames
-    .map((value) => inferIdentityByName(value))
-    .find((identity) => identity.name);
-
-  if (nameIdentity) {
-    return {
-      itemId: item.itemId,
-      name: nameIdentity.name,
-      domain: nameIdentity.domain,
-      logoUrl: getLogoUrl(nameIdentity.domain),
-      updatedAt: item.item?.lastUpdatedAt ?? item.item?.updatedAt ?? null,
-    };
-  }
-
-  const connectorName = item.item?.connector?.name ?? "Bank connection";
-  const connectorDomain = getDomainFromUrl(item.item?.connector?.institutionUrl);
+  const identity = resolveInstitutionIdentity(item);
 
   return {
     itemId: item.itemId,
-    name: isGenericInstitutionName(connectorName) ? "Bank connection" : connectorName,
-    domain: connectorDomain,
-    logoUrl: getLogoUrl(connectorDomain),
+    name: identity.name,
+    domain: identity.domain,
+    logoUrl: getInstitutionLogoUrl(identity.domain),
     updatedAt: item.item?.lastUpdatedAt ?? item.item?.updatedAt ?? null,
   };
 }
@@ -328,21 +213,7 @@ export function Settings() {
                   return (
                     <article key={connection.itemId} className="connectionCard">
                       <div className="connectionTopRow">
-                        <span className="institutionLogo" aria-hidden="true">
-                          {connection.logoUrl ? (
-                            <Image
-                              src={connection.logoUrl}
-                              alt=""
-                              width={28}
-                              height={28}
-                              className="institutionLogoImage"
-                              sizes="28px"
-                              quality={100}
-                            />
-                          ) : (
-                            <span className="connectionLogoFallback">{createInitials(connection.name)}</span>
-                          )}
-                        </span>
+                        <InstitutionLogo institutionName={connection.name} institutionDomain={connection.domain} small />
                         <span className="connectionPulse" aria-hidden="true" />
                       </div>
 
@@ -473,12 +344,6 @@ export function Settings() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-        }
-
-        .connectionLogoFallback {
-          font-size: var(--font-size-sm);
-          font-weight: 700;
-          color: color-mix(in srgb, var(--foreground) 84%, transparent);
         }
 
         .connectionPulse {

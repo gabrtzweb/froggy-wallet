@@ -1,9 +1,12 @@
 "use client";
 
 import { CreditCard, Landmark, LineChart, TrendingUp } from "lucide-react";
-import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { memo, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { InstitutionLogo } from "@/app/components/institution-logo";
+import {
+  resolveInstitutionIdentity,
+} from "@/app/lib/institution-utils";
 import { useCachedApi } from "@/app/lib/use-cached-api";
 
 type OverviewAccount = {
@@ -94,121 +97,6 @@ function buildLinePath(values: Array<{ value: number }>) {
     .join(" ");
 }
 
-type BankIdentity = {
-  name: string;
-  domain: string;
-};
-
-function normalizeText(value: string) {
-  return value.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
-}
-
-function getBankIdentity(rawName: string): BankIdentity {
-  const normalizedName = normalizeText(rawName);
-
-  const mappings: Array<{ test: RegExp; identity: BankIdentity }> = [
-    { test: /nu pagamentos|nubank|nu bank/, identity: { name: "Nubank", domain: "nubank.com.br" } },
-    { test: /banco inter|inter\b/, identity: { name: "Inter", domain: "inter.co" } },
-    { test: /banco do brasil|bb\b/, identity: { name: "Banco do Brasil", domain: "bb.com.br" } },
-    { test: /itau|itaú/, identity: { name: "Itaú", domain: "itau.com.br" } },
-    { test: /bradesco/, identity: { name: "Bradesco", domain: "bradesco.com.br" } },
-    { test: /santander/, identity: { name: "Santander", domain: "santander.com.br" } },
-    { test: /caixa/, identity: { name: "Caixa", domain: "caixa.gov.br" } },
-    { test: /c6/, identity: { name: "C6 Bank", domain: "c6bank.com.br" } },
-    { test: /neon/, identity: { name: "Neon", domain: "neon.com.br" } },
-    { test: /next/, identity: { name: "next", domain: "next.me" } },
-    { test: /picpay/, identity: { name: "PicPay", domain: "picpay.com" } },
-    { test: /mercado pago|mercadopago/, identity: { name: "Mercado Pago", domain: "mercadopago.com.br" } },
-    { test: /sicoob/, identity: { name: "Sicoob", domain: "sicoob.com.br" } },
-    { test: /sicredi/, identity: { name: "Sicredi", domain: "sicredi.com.br" } },
-    { test: /btg/, identity: { name: "BTG Pactual", domain: "btgpactual.com" } },
-    { test: /will bank/, identity: { name: "Will Bank", domain: "willbank.com.br" } },
-    { test: /pagbank|pagseguro/, identity: { name: "PagBank", domain: "pagbank.com.br" } },
-    { test: /original/, identity: { name: "Banco Original", domain: "bancooriginal.com.br" } },
-    { test: /pan/, identity: { name: "Banco Pan", domain: "bancopan.com.br" } },
-  ];
-
-  for (const mapping of mappings) {
-    if (mapping.test.test(normalizedName)) {
-      return mapping.identity;
-    }
-  }
-
-  return {
-    name: rawName,
-    domain: "",
-  };
-}
-
-function getDisplayBankIdentity(
-  account: Pick<OverviewAccount, "name" | "institutionName" | "institutionDomain" | "itemId">,
-) {
-  const combinedName = `${account.institutionName || ""} ${account.name || ""}`;
-  const identity = getBankIdentity(combinedName);
-
-  return {
-    name: identity.domain ? identity.name : (account.institutionName || account.name),
-    domain: identity.domain || account.institutionDomain,
-  };
-}
-
-function getBankLogoUrl(domain: string) {
-  if (!domain) return "";
-  return `https://logos-api.apistemic.com/domain:${domain}`;
-}
-
-function createFallbackLogoDataUrl(name: string) {
-  const initials = name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none">
-    <rect width="96" height="96" rx="18" fill="#0f1812"/>
-    <rect x="1" y="1" width="94" height="94" rx="17" stroke="rgba(255,255,255,0.12)"/>
-    <text x="48" y="58" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#eafaf0">${initials || "?"}</text>
-  </svg>`;
-
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-}
-
-const InstitutionLogo = memo(function InstitutionLogo({
-  institutionName,
-  institutionDomain,
-  small = false,
-}: {
-  institutionName: string;
-  institutionDomain: string;
-  small?: boolean;
-}) {
-  const [useFallbackSource, setUseFallbackSource] = useState(false);
-  const fallbackSource = useMemo(() => createFallbackLogoDataUrl(institutionName), [institutionName]);
-  const source = useFallbackSource || !institutionDomain ? fallbackSource : getBankLogoUrl(institutionDomain);
-
-  // For SVGs, let them fill the badge edge-to-edge. For raster, use cover.
-  // Next.js Image will not blur SVGs, but for PNG/JPG, we want sharpness.
-  return (
-    <span className={`institutionLogo ${small ? "institutionLogoSm" : ""}`} aria-hidden="true">
-      <Image
-        className="institutionLogoImage"
-        src={source}
-        alt=""
-        aria-hidden="true"
-        width={small ? 28 : 34}
-        height={small ? 28 : 34}
-        sizes={small ? "28px" : "34px"}
-        quality={100}
-        unoptimized={source.endsWith(".svg") || source.startsWith("data:image/svg+xml")}
-        onError={() => {
-          setUseFallbackSource(true);
-        }}
-      />
-    </span>
-  );
-});
-
 export function Overview() {
   const locale = useLocale();
   const t = useTranslations("overview");
@@ -277,7 +165,7 @@ export function Overview() {
               <div className="accountList">
                 {topBankAccounts.length ? (
                   topBankAccounts.map((account) => {
-                    const identity = getDisplayBankIdentity(account);
+                    const identity = resolveInstitutionIdentity(account);
 
                     return (
                         <div className="accountRow" key={account.id}>
@@ -323,7 +211,7 @@ export function Overview() {
               <div className="creditList">
                 {topCreditCards.length ? (
                   topCreditCards.map((account) => {
-                    const identity = getDisplayBankIdentity(account);
+                    const identity = resolveInstitutionIdentity(account);
 
                     return (
                         <div className="creditRow" key={account.id}>

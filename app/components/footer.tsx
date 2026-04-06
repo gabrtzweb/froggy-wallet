@@ -8,7 +8,7 @@ export function Footer() {
 
   return (
     <footer className="footer">
-      <div className="inner">
+      <div className="inner app-page-main">
         <div className="left">
           <span className="pulseDot" aria-hidden="true" />
           <p className="text">{t("version")}</p>

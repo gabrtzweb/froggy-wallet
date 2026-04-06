@@ -4,64 +4,9 @@
 import { ArrowRight, LayoutDashboard, Lock, RefreshCw, Zap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useRef, useState } from "react";
-import Image from "next/image";
-// Local mapping for Apistemic domains
-const BANK_LOGOS: Record<string, { name: string; domain: string }> = {
-  Nubank: { name: "Nubank", domain: "nubank.com.br" },
-  Inter: { name: "Inter", domain: "inter.co" },
-  "Banco do Brasil": { name: "Banco do Brasil", domain: "bb.com.br" },
-};
-
-function getBankLogoUrl(domain: string) {
-  if (!domain) return "";
-  return `https://logos-api.apistemic.com/domain:${domain}`;
-}
-
-function createFallbackLogoDataUrl(name: string) {
-  const initials = name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none">
-    <rect width="96" height="96" rx="18" fill="#0f1812"/>
-    <rect x="1" y="1" width="94" height="94" rx="17" stroke="rgba(255,255,255,0.12)"/>
-    <text x="48" y="58" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#eafaf0">${initials || "?"}</text>
-  </svg>`;
-
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-}
-
-function InstitutionLogo({ institutionName, institutionDomain, small = false }: { institutionName: string; institutionDomain: string; small?: boolean }) {
-  const [useFallbackSource, setUseFallbackSource] = useState(false);
-  const source =
-    useFallbackSource || !institutionDomain
-      ? createFallbackLogoDataUrl(institutionName)
-      : getBankLogoUrl(institutionDomain);
-
-  return (
-    <span className={`institutionLogo ${small ? "institutionLogoSm" : ""}`} aria-hidden="true">
-      <Image
-        className="institutionLogoImage"
-        src={source}
-        alt=""
-        aria-hidden="true"
-        width={small ? 28 : 34}
-        height={small ? 28 : 34}
-        sizes={small ? "28px" : "34px"}
-        quality={100}
-        unoptimized={source.endsWith('.svg') || source.startsWith('data:image/svg+xml')}
-        onError={() => {
-          setUseFallbackSource(true);
-        }}
-        priority
-      />
-    </span>
-  );
-}
+import { useRef } from "react";
+import { InstitutionLogo } from "@/app/components/institution-logo";
+import { resolveInstitutionIdentity } from "@/app/lib/institution-utils";
 
 export function Home() {
   const t = useTranslations("home");
@@ -125,7 +70,7 @@ export function Home() {
         <section className="hero">
           <div className="copyBlock">
             <p className="badge">
-              <Zap size={14} className="badgeIcon" aria-hidden="true" />
+              <Zap size={14} aria-hidden="true" />
               {t("badge")}
             </p>
             <h1 className="title">
@@ -169,17 +114,11 @@ export function Home() {
 
                 <div className="walletList">
                   {accounts.map((account) => {
-                    // Try to match the hardcoded name to our logo mapping
-                    const logoInfo = Object.values(BANK_LOGOS).find(
-                      (b) => account.name.toLowerCase().includes(b.name.toLowerCase())
-                    );
+                    const identity = resolveInstitutionIdentity({ institutionName: account.name });
+
                     return (
                       <div className="walletItem" key={account.name}>
-                        {logoInfo ? (
-                          <InstitutionLogo institutionName={logoInfo.name} institutionDomain={logoInfo.domain} />
-                        ) : (
-                          <span className="bankLogoPlaceholder" />
-                        )}
+                        <InstitutionLogo institutionName={identity.name} institutionDomain={identity.domain} />
                         <div className="walletMeta">
                           <p className="bankName">{account.name}</p>
                           <p className="bankUpdate">{account.updated}</p>
@@ -237,15 +176,11 @@ export function Home() {
           border-radius: var(--radius-full);
           border: 1px solid color-mix(in srgb, var(--primary) 36%, transparent);
           background: color-mix(in srgb, var(--secondary) 16%, transparent);
-          color: color-mix(in srgb, var(--foreground) 90%, transparent);
+          color: var(--primary);
           font-size: var(--font-size-sm);
           letter-spacing: 0.08em;
           text-transform: uppercase;
           font-weight: 700;
-        }
-
-        .badgeIcon {
-          color: color-mix(in srgb, var(--primary) 72%, var(--foreground) 28%);
         }
 
         .title {
@@ -429,18 +364,6 @@ export function Home() {
           border-top: 1px solid color-mix(in srgb, var(--divider) 58%, transparent);
         }
 
-        .bankLogoPlaceholder {
-          width: 30px;
-          height: 30px;
-          border-radius: var(--radius-full);
-          border: 1px solid color-mix(in srgb, var(--glass-border) 80%, transparent);
-          background: radial-gradient(
-            70% 70% at 25% 25%,
-            color-mix(in srgb, var(--foreground) 24%, transparent),
-            transparent
-          );
-        }
-
         .walletMeta {
           min-width: 0;
         }
@@ -622,11 +545,6 @@ export function Home() {
             grid-template-columns: 24px 1fr auto;
             gap: 0.55rem;
             padding: 0.63rem 0;
-          }
-
-          .bankLogoPlaceholder {
-            width: 24px;
-            height: 24px;
           }
 
           .floatingTopRight {

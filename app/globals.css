@@ -93,6 +93,15 @@ html, body {
   overflow-x: clip;
 }
 
+html {
+  scrollbar-gutter: stable;
+  scrollbar-color: color-mix(in srgb, var(--glass-bg) 92%, var(--foreground) 8%) color-mix(in srgb, var(--background) 76%, transparent);
+}
+
+body {
+  overflow-y: auto;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -266,6 +275,10 @@ p  { font-size: var(--font-size-base); line-height: 1.6; }
   font-weight: 700;
 }
 
+.card-panel-kicker svg {
+  color: var(--primary);
+}
+
 .card-panel-body {
   padding: var(--card-body-padding);
 }
@@ -381,10 +394,6 @@ p  { font-size: var(--font-size-base); line-height: 1.6; }
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-}
-
-.header .inner {
-  width: min(var(--layout-max-width), calc(100% - var(--layout-gutter-desktop)));
 }
 
 .header .brand,
@@ -571,9 +580,53 @@ html[data-locale='pt'] .header .ptLocaleIcon {
 }
 
 .footer .inner {
-  width: min(var(--layout-max-width), calc(100% - var(--layout-gutter-desktop)));
   padding: 1rem 0;
   border-top: 1px solid color-mix(in srgb, var(--glass-border) 55%, transparent);
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--background) 92%, transparent),
+      color-mix(in srgb, var(--background) 78%, transparent)
+    );
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--glass-bg) 82%, var(--foreground) 18%),
+    color-mix(in srgb, var(--glass-bg) 70%, var(--background) 30%)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 0 1px color-mix(in srgb, var(--glass-border) 58%, transparent);
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--glass-bg) 88%, var(--foreground) 12%),
+    color-mix(in srgb, var(--glass-bg) 76%, var(--background) 24%)
+  );
+}
+
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner {
+  background: var(--background);
 }
 
 .footer .left,
@@ -653,7 +706,6 @@ html[data-locale='pt'] .header .ptLocaleIcon {
   .header .inner {
     position: relative;
     justify-content: space-between;
-    width: min(var(--layout-max-width), calc(100% - var(--layout-gutter-mobile)));
   }
 
   .header .title {
