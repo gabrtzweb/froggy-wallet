@@ -2,6 +2,7 @@
 
 import { Globe, Languages, Menu, Moon, Sun, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -68,7 +69,7 @@ export function Header() {
       <div className="inner app-page-main">
         <Link href="/" className="brand" aria-label={t("aria.dashboard")}>
           <span className="logo" aria-hidden="true">
-            🐸
+            <Image src="/assets/froggy-logo.png" alt="" width={32} height={32} className="froggyLogo" aria-hidden="true" />
           </span>
           <span className="title">{t("brand")}</span>
         </Link>

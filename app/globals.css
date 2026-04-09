@@ -35,6 +35,7 @@
   --card-body-padding: 0.9rem 0.86rem;
   --card-kicker-size: 0.84rem;
   --control-height-md: 36px;
+  --header-control-height: 42px;
 }
 
 /* Colors - Dark Mode */
@@ -117,6 +118,7 @@ body {
   flex: 1;
   width: 100%;
   padding-top: 94px;
+  padding-bottom: 30px;
 }
 
 .app-page {
@@ -147,6 +149,7 @@ body {
 @media (max-width: 1024px) {
   .app-shell {
     padding-top: 132px;
+    padding-bottom: 30px;
   }
 
   .app-page {
@@ -157,6 +160,7 @@ body {
 @media (max-width: 640px) {
   .app-shell {
     padding-top: 162px;
+    padding-bottom: 30px;
   }
 
   .app-page {
@@ -400,6 +404,7 @@ p  { font-size: var(--font-size-base); line-height: 1.6; }
 .header .account {
   display: inline-flex;
   align-items: center;
+  height: var(--header-control-height);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--glass-bg) 82%, transparent);
@@ -412,11 +417,16 @@ p  { font-size: var(--font-size-base); line-height: 1.6; }
   gap: 0.55rem;
   font-family: var(--font-heading);
   font-weight: 700;
-  padding: 0.35rem 0.75rem 0.35rem 0.35rem;
+  padding: 0 0.75rem;
 }
 
 .header .logo {
-  font-size: 1.3rem;
+  display: inline-flex;
+}
+
+.froggyLogo {
+  width: 22px;
+  height: 22px;
 }
 
 .header .title {
@@ -431,11 +441,14 @@ p  { font-size: var(--font-size-base); line-height: 1.6; }
 }
 
 .header .navLink {
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
   color: color-mix(in srgb, var(--foreground) 84%, transparent);
   font-family: var(--font-body);
   font-size: 0.96rem;
-  padding: 0.52rem 0.72rem;
+  height: var(--header-control-height);
+  padding: 0 0.72rem;
   border-radius: var(--radius-full);
   border: 1px solid transparent;
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
@@ -465,8 +478,8 @@ p  { font-size: var(--font-size-base); line-height: 1.6; }
 }
 
 .header .chip {
-  width: 38px;
-  height: 38px;
+  width: var(--header-control-height);
+  height: var(--header-control-height);
   border: 1px solid color-mix(in srgb, var(--glass-border) 75%, transparent);
   padding: 0;
   cursor: pointer;
@@ -544,7 +557,7 @@ html[data-locale='pt'] .header .ptLocaleIcon {
 
 .header .account {
   gap: 0.55rem;
-  padding: 0.35rem 0.75rem 0.35rem 0.35rem;
+  padding: 0 0.75rem 0 0.35rem;
 }
 
 .header .avatar,

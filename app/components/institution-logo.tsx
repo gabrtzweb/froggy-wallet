@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { createFallbackLogoDataUrl, getInstitutionLogoUrl } from "@/app/lib/institution-utils";
 
 type InstitutionLogoProps = {
@@ -16,7 +17,7 @@ export function InstitutionLogo({ institutionName, institutionDomain = "", small
 
   return (
     <span className={`institutionLogo ${small ? "institutionLogoSm" : ""}`} aria-hidden="true">
-      <img
+      <Image
         className="institutionLogoImage"
         src={source}
         alt=""
@@ -26,8 +27,7 @@ export function InstitutionLogo({ institutionName, institutionDomain = "", small
         onError={() => {
           setUseFallbackSource(true);
         }}
-        loading={small ? "lazy" : "eager"}
-        decoding="async"
+        priority={!small}
       />
     </span>
   );
