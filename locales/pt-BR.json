@@ -99,6 +99,54 @@
           "details": "Ver detalhes"
         }
       }
+    },
+    "details": {
+      "connection": {
+        "title": "Detalhes da conexão",
+        "summaryTitle": "Resumo da conexão",
+        "back": "Voltar para conexões",
+        "fields": {
+          "itemId": "ID do item",
+          "institution": "Instituição",
+          "updated": "Atualizado",
+          "accounts": "Contas",
+          "cards": "Cartões",
+          "investments": "Investimentos"
+        },
+        "sections": {
+          "accounts": "Contas",
+          "cards": "Cartões de crédito",
+          "investments": "Investimentos"
+        },
+        "emptyStates": {
+          "noAccounts": "Nenhuma conta bancária encontrada",
+          "noCards": "Nenhum cartão de crédito encontrado",
+          "noInvestments": "Nenhum investimento encontrado"
+        }
+      },
+      "userInformation": {
+        "title": "Informações do usuário",
+        "subtitle": "Os dados do perfil aparecerão aqui em breve.",
+        "sectionTitle": "Dados do usuário",
+        "profileSectionTitle": "Detalhes do perfil",
+        "emptyState": "Esta seção está vazia por enquanto.",
+        "save": "Salvar",
+        "profileImageHint": "A edição da foto do perfil estará disponível em breve",
+        "fallbackName": "Rodrigo",
+        "placeholder": "Ainda não disponível",
+        "fields": {
+          "name": "Nome completo",
+          "idDocument": "Documento",
+          "birthDate": "Data de nascimento",
+          "email": "E-mail",
+          "phone": "Telefone",
+          "address": "Endereço"
+        },
+        "sections": {
+          "contact": "Contato",
+          "address": "Endereço"
+        }
+      }
     }
   },
   "overview": {

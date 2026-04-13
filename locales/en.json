@@ -99,6 +99,54 @@
           "details": "See details"
         }
       }
+    },
+    "details": {
+      "connection": {
+        "title": "Connection details",
+        "summaryTitle": "Connection summary",
+        "back": "Back to connections",
+        "fields": {
+          "itemId": "Item ID",
+          "institution": "Institution",
+          "updated": "Updated",
+          "accounts": "Accounts",
+          "cards": "Cards",
+          "investments": "Investments"
+        },
+        "sections": {
+          "accounts": "Accounts",
+          "cards": "Credit cards",
+          "investments": "Investments"
+        },
+        "emptyStates": {
+          "noAccounts": "No bank accounts found",
+          "noCards": "No credit cards found",
+          "noInvestments": "No investments found"
+        }
+      },
+      "userInformation": {
+        "title": "User information",
+        "subtitle": "Profile details will appear here soon.",
+        "sectionTitle": "User data",
+        "profileSectionTitle": "Profile details",
+        "emptyState": "This section is intentionally empty for now.",
+        "save": "Save",
+        "profileImageHint": "Profile photo editing will be available soon",
+        "fallbackName": "Rodrigo",
+        "placeholder": "Not available yet",
+        "fields": {
+          "name": "Full name",
+          "idDocument": "Document ID",
+          "birthDate": "Birth date",
+          "email": "E-mail",
+          "phone": "Phone",
+          "address": "Address"
+        },
+        "sections": {
+          "contact": "Contact",
+          "address": "Address"
+        }
+      }
     }
   },
   "overview": {

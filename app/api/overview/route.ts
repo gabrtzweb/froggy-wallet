@@ -1,4 +1,8 @@
-import { PluggyClient } from "pluggy-sdk";
+import {
+  getConfiguredItemIds,
+  getPluggyClient,
+  normalizeErrorMessage,
+} from "@/app/lib/server/pluggy";
 
 type OverviewItemId = string;
 
@@ -54,25 +58,8 @@ type OverviewResponse = {
   totalAssets: number;
 };
 
-function getPluggyClient() {
-  const clientId = process.env.PLUGGY_CLIENT_ID ?? process.env.CLIENT_ID;
-  const clientSecret =
-    process.env.PLUGGY_CLIENT_SECRET ?? process.env.CLIENT_SECRET;
-
-  if (!clientId || !clientSecret) {
-    throw new Error(
-      "Missing Pluggy credentials in environment variables. Set PLUGGY_CLIENT_ID and PLUGGY_CLIENT_SECRET.",
-    );
-  }
-
-  return new PluggyClient({ clientId, clientSecret });
-}
-
 function getItemIds(): OverviewItemId[] {
-  const itemIds =
-    process.env.PLUGGY_DASHBOARD_ITEM_IDS ?? process.env.PLUGGY_ITEM_IDS ?? process.env.PLUGGY_ITEM_ID ?? "";
-
-  return [...new Set(itemIds.split(",").map((itemId) => itemId.trim()).filter(Boolean))];
+  return getConfiguredItemIds();
 }
 
 function getCurrencyCode(values: Array<{ currencyCode?: string | null }>) {
@@ -378,23 +365,6 @@ function buildMonthlyHistory(
   });
 }
 
-function normalizeError(error: unknown) {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as { message?: unknown }).message === "string"
-  ) {
-    return (error as { message: string }).message;
-  }
-
-  return "Failed to load overview data";
-}
-
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -611,7 +581,7 @@ export async function GET(req: Request) {
 
     return Response.json(response);
   } catch (error) {
-    const message = normalizeError(error);
+    const message = normalizeErrorMessage(error, "Failed to load overview data");
     return Response.json({ error: message }, { status: 500 });
   }
 }

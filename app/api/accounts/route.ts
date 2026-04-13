@@ -1,35 +1,4 @@
-import { PluggyClient } from "pluggy-sdk";
-
-function getPluggyClient() {
-  const clientId = process.env.PLUGGY_CLIENT_ID ?? process.env.CLIENT_ID;
-  const clientSecret =
-    process.env.PLUGGY_CLIENT_SECRET ?? process.env.CLIENT_SECRET;
-
-  if (!clientId || !clientSecret) {
-    throw new Error(
-      "Missing Pluggy credentials in environment variables. Set PLUGGY_CLIENT_ID and PLUGGY_CLIENT_SECRET.",
-    );
-  }
-
-  return new PluggyClient({ clientId, clientSecret });
-}
-
-function getErrorMessage(error: unknown) {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as { message?: unknown }).message === "string"
-  ) {
-    return (error as { message: string }).message;
-  }
-
-  return "Failed to fetch accounts";
-}
+import { getPluggyClient, normalizeErrorMessage } from "@/app/lib/server/pluggy";
 
 export async function GET(req: Request) {
   try {
@@ -48,7 +17,7 @@ export async function GET(req: Request) {
 
     return Response.json(response);
   } catch (error) {
-    const message = getErrorMessage(error);
+    const message = normalizeErrorMessage(error, "Failed to fetch accounts");
     return Response.json({ error: message }, { status: 500 });
   }
 }

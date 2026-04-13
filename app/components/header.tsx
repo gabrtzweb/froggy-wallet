@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createProfileInitials, getProfileFirstName, useProfileName } from "@/app/lib/profile-client";
 
 type Theme = "light" | "dark";
 type Locale = "en" | "pt-BR";
@@ -32,7 +33,10 @@ export function Header() {
   const t = useTranslations("header");
   const locale = useLocale() as Locale;
   const router = useRouter();
+  const fallbackProfileName = t("account.name");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const profileName = useProfileName(fallbackProfileName);
+  const displayName = getProfileFirstName(profileName);
 
   useEffect(() => {
     applyTheme(getPreferredTheme());
@@ -120,11 +124,11 @@ export function Header() {
           </button>
           <Link href="/settings" className="account" aria-label={t("actions.account")}>
             <span className="avatar" aria-hidden="true">
-              RG
+              {createProfileInitials(profileName)}
             </span>
             <span className="accountText">
               <span className="hello">{t("account.hello")} </span>
-              <span className="name">{t("account.name")}</span>
+              <span className="name">{displayName}</span>
             </span>
           </Link>
           <button

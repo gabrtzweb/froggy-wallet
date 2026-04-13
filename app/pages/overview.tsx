@@ -5,6 +5,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { InstitutionLogo } from "@/app/components/institution-logo";
 import {
+  CardPanel,
+  CardPanelBody,
+  CardPanelHeader,
+  CardPanelKicker,
+} from "@/app/components/ui/card-panel";
+import { PageHeader } from "@/app/components/ui/page-header";
+import {
   resolveInstitutionIdentity,
 } from "@/app/lib/institution-utils";
 import { useCachedApi } from "@/app/lib/use-cached-api";
@@ -147,23 +154,20 @@ export function Overview() {
   return (
     <div className="app-page">
       <main className="app-page-main app-page-main--grid">
-        <header className="page-header-block">
-          <h1>{t("title")}</h1>
-          <p>{t("subtitle")}</p>
-        </header>
+        <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
         {errorMessage ? <p className="statusBanner">{t("states.error")}: {errorMessage}</p> : null}
 
         <section className="overviewGrid" aria-label={t("title")}>
-          <article className="card-panel panelTop">
-            <header className="card-panel-header">
-              <p className="card-panel-kicker">
+          <CardPanel className="panelTop">
+            <CardPanelHeader>
+              <CardPanelKicker>
                 <Landmark size={14} aria-hidden="true" />
                 {t("cards.accounts.title")}
-              </p>
-            </header>
+              </CardPanelKicker>
+            </CardPanelHeader>
 
-            <div className="card-panel-body panelBodyGap">
+            <CardPanelBody className="panelBodyGap">
               <p className="metricValue">
                 {hasData ? formatMoney(data?.bankTotal ?? 0) : loading ? t("states.loadingShort") : formatMoney(0)}
               </p>
@@ -188,18 +192,18 @@ export function Overview() {
                   <div className="emptyState">{loading ? t("states.loading") : t("states.noBankAccounts")}</div>
                 )}
               </div>
-            </div>
-          </article>
+            </CardPanelBody>
+          </CardPanel>
 
-          <article className="card-panel panelTop">
-            <header className="card-panel-header">
-              <p className="card-panel-kicker">
+          <CardPanel className="panelTop">
+            <CardPanelHeader>
+              <CardPanelKicker>
                 <CreditCard size={14} aria-hidden="true" />
                 {t("cards.creditCards.title")}
-              </p>
-            </header>
+              </CardPanelKicker>
+            </CardPanelHeader>
 
-            <div className="card-panel-body panelBodyGap">
+            <CardPanelBody className="panelBodyGap">
               <p className="metricValue creditValue">
                 {hasData ? formatMoney(data?.creditOutstanding ?? 0) : loading ? t("states.loadingShort") : formatMoney(0)}
               </p>
@@ -234,18 +238,18 @@ export function Overview() {
                   <div className="emptyState">{loading ? t("states.loading") : t("states.noCreditCards")}</div>
                 )}
               </div>
-            </div>
-          </article>
+            </CardPanelBody>
+          </CardPanel>
 
-          <article className="card-panel panelTop">
-            <header className="card-panel-header">
-              <p className="card-panel-kicker">
+          <CardPanel className="panelTop">
+            <CardPanelHeader>
+              <CardPanelKicker>
                 <TrendingUp size={14} aria-hidden="true" />
                 {t("cards.investments.title")}
-              </p>
-            </header>
+              </CardPanelKicker>
+            </CardPanelHeader>
 
-            <div className="card-panel-body panelBodyGap">
+            <CardPanelBody className="panelBodyGap">
               <p className="metricValue investValue">
                 {hasData ? formatMoney(data?.investmentTotal ?? 0) : loading ? t("states.loadingShort") : formatMoney(0)}
               </p>
@@ -285,18 +289,18 @@ export function Overview() {
                   style={{ width: `${hasData ? Math.max(0, topInvestmentClassShare) : 0}%` }}
                 />
               </div>
-            </div>
-          </article>
+            </CardPanelBody>
+          </CardPanel>
 
-          <article className="card-panel panelBottom">
-            <header className="card-panel-header">
-              <p className="card-panel-kicker">
+          <CardPanel className="panelBottom">
+            <CardPanelHeader>
+              <CardPanelKicker>
                 <LineChart size={14} aria-hidden="true" />
                 {t("cards.balanceHistory.title")}
-              </p>
-            </header>
+              </CardPanelKicker>
+            </CardPanelHeader>
 
-            <div className="card-panel-body chartBody">
+            <CardPanelBody className="chartBody">
               <p className={`metricValue ${isMonthNetNegative ? "negativeFlow" : ""}`}>
                 {hasData
                   ? formatMoney(monthNetFlow)
@@ -336,12 +340,12 @@ export function Overview() {
                   ))}
                 </div>
               </div>
-            </div>
-          </article>
+            </CardPanelBody>
+          </CardPanel>
         </section>
       </main>
 
-      <style jsx>{`
+      <style jsx global>{`
         .overviewGrid {
           display: grid;
           gap: 1rem;
@@ -375,7 +379,7 @@ export function Overview() {
         .metricValue {
           margin: 0;
           font-family: var(--font-heading);
-          font-size: clamp(1.45rem, 1.18rem + 0.84vw, 1.9rem);
+          font-size: var(--font-size-heading);
           font-weight: 700;
           color: color-mix(in srgb, var(--foreground) 96%, transparent);
         }
