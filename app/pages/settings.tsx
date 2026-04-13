@@ -12,7 +12,7 @@ import {
   UserCircle2,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { InstitutionLogo } from "@/app/components/institution-logo";
 import { CardAction } from "@/app/components/ui/card-action";
 import {
@@ -118,12 +118,6 @@ export function Settings() {
   const [draftName, setDraftName] = useState(savedName);
   const [isEditingName, setIsEditingName] = useState(false);
 
-  useEffect(() => {
-    if (!isEditingName) {
-      setDraftName(savedName);
-    }
-  }, [isEditingName, savedName]);
-
   const connections = useMemo(() => {
     const items = data?.items ?? [];
     return items.map(getConnectionSummary);
@@ -133,7 +127,7 @@ export function Settings() {
   const loadingConnectionsLabel = locale === "pt-BR" ? "Carregando conexoes..." : "Loading connections...";
   const trimmedSavedName = savedName.trim();
   const trimmedDraftName = draftName.trim();
-  const hasNameChanges = Boolean(trimmedDraftName) && trimmedDraftName !== trimmedSavedName;
+  const hasNameChanges = isEditingName && Boolean(trimmedDraftName) && trimmedDraftName !== trimmedSavedName;
   const visibleName = isEditingName ? draftName : savedName;
   const profileNameForInitials = isEditingName ? trimmedDraftName : trimmedSavedName;
   const profileInitials = createProfileInitials(profileNameForInitials || fallbackName);
@@ -191,7 +185,10 @@ export function Settings() {
                       className="nameInput input-like-base"
                       value={draftName}
                       onChange={(event) => setDraftName(event.target.value)}
-                      onBlur={() => setIsEditingName(false)}
+                      onBlur={() => {
+                        setDraftName(savedName);
+                        setIsEditingName(false);
+                      }}
                       autoFocus
                       aria-label={t("details.userInformation.fields.name")}
                     />
@@ -215,7 +212,12 @@ export function Settings() {
 
                 <span className="saveNameSlot" aria-hidden={!hasNameChanges}>
                   {hasNameChanges ? (
-                    <button type="button" className="card-btn-outline btn-sm-outline saveNameButton" onClick={handleNameSave}>
+                    <button
+                      type="button"
+                      className="card-btn-outline btn-sm-outline saveNameButton"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={handleNameSave}
+                    >
                       {t("details.userInformation.save")}
                     </button>
                   ) : null}

@@ -11,13 +11,26 @@ type UseCachedApiResult<T> = {
 
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
-  const payload = (await response.json()) as T & { error?: string };
+  const rawBody = await response.text();
+  let payload: (T & { error?: string }) | null = null;
 
-  if (!response.ok) {
-    throw new Error(payload.error ?? "Request failed");
+  if (rawBody) {
+    try {
+      payload = JSON.parse(rawBody) as T & { error?: string };
+    } catch {
+      if (!response.ok) {
+        throw new Error(`Request failed (${response.status})`);
+      }
+
+      throw new Error("The API returned an unexpected response format");
+    }
   }
 
-  return payload;
+  if (!response.ok) {
+    throw new Error(payload?.error ?? `Request failed (${response.status})`);
+  }
+
+  return payload as T;
 }
 
 export function useCachedApi<T>(
