@@ -354,6 +354,12 @@ export function Settings() {
           border-radius: 999px;
         }
 
+        .avatarEditButton .account-avatar {
+          width: 42px;
+          height: 42px;
+          font-size: 0.9rem;
+        }
+
         .avatarEditOverlay {
           position: absolute;
           inset: 0;
