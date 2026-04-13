@@ -12,7 +12,7 @@ import {
   UserCircle2,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { InstitutionLogo } from "@/app/components/institution-logo";
 import { CardAction } from "@/app/components/ui/card-action";
 import {
@@ -118,6 +118,12 @@ export function Settings() {
   const [draftName, setDraftName] = useState(savedName);
   const [isEditingName, setIsEditingName] = useState(false);
 
+  useEffect(() => {
+    if (!isEditingName) {
+      setDraftName(savedName);
+    }
+  }, [isEditingName, savedName]);
+
   const connections = useMemo(() => {
     const items = data?.items ?? [];
     return items.map(getConnectionSummary);
@@ -125,10 +131,12 @@ export function Settings() {
   const connectionsError = errorMessage;
   const showFirstLoadState = isInitialLoading;
   const loadingConnectionsLabel = locale === "pt-BR" ? "Carregando conexoes..." : "Loading connections...";
+  const trimmedSavedName = savedName.trim();
   const trimmedDraftName = draftName.trim();
-  const hasNameChanges = Boolean(trimmedDraftName) && trimmedDraftName !== savedName;
+  const hasNameChanges = Boolean(trimmedDraftName) && trimmedDraftName !== trimmedSavedName;
   const visibleName = isEditingName ? draftName : savedName;
-  const profileInitials = createProfileInitials(trimmedDraftName || savedName || fallbackName);
+  const profileNameForInitials = isEditingName ? trimmedDraftName : trimmedSavedName;
+  const profileInitials = createProfileInitials(profileNameForInitials || fallbackName);
 
   function handleNameSave() {
     if (!hasNameChanges) {

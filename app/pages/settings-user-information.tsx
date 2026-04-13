@@ -59,7 +59,7 @@ export function SettingsUserInformationDetails() {
             <div className="detailFieldGrid detailFieldGrid--profile">
               <DetailField
                 label={t("details.userInformation.fields.name")}
-                value={placeholder}
+                value={displayName}
                 icon={<UserCircle2 size={13} aria-hidden="true" />}
               />
               <DetailField
