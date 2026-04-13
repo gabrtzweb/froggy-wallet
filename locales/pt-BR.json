@@ -123,11 +123,13 @@
       "investments": {
         "title": "Investimentos",
         "summary": "{classes} classes - {assets} ativos ({active} ativos, {inactive} inativos)",
-        "summaryFallback": "1 classe - 1 ativo (0 ativos, 1 inativos)"
+        "summaryFallback": "1 classe - 1 ativo (0 ativos, 1 inativos)",
+        "allocationHint": "Maior classe representa {value}% do valor investido"
       },
       "balanceHistory": {
         "title": "Evolução do saldo",
-        "aria": "Gráfico de histórico de saldo"
+        "aria": "Gráfico de histórico de saldo",
+        "explanation": "Fluxo de caixa líquido no mês (créditos - débitos). Valor negativo significa que você gastou mais do que recebeu neste período."
       }
     }
   },

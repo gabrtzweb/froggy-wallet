@@ -135,6 +135,12 @@ export function Overview() {
       inactive: classes.reduce((sum, investmentClass) => sum + investmentClass.inactiveCount, 0),
     };
   }, [data?.investmentClasses]);
+  const monthNetFlow = data?.balanceHistory.at(-1)?.value ?? 0;
+  const isMonthNetNegative = monthNetFlow < 0;
+  const topInvestmentClassShare =
+    data && data.investmentTotal > 0 && topInvestmentClasses.length
+      ? Math.max(0, Math.min(100, (topInvestmentClasses[0].balance / data.investmentTotal) * 100))
+      : 0;
   const hasData = Boolean(data);
   const loading = isInitialLoading;
 
@@ -254,6 +260,12 @@ export function Overview() {
                   : t("cards.investments.summaryFallback")}
               </p>
 
+              <p className="smallMeta">
+                {t("cards.investments.allocationHint", {
+                  value: Math.round(topInvestmentClassShare),
+                })}
+              </p>
+
               {topInvestmentClasses.length ? (
                 topInvestmentClasses.map((investmentClass) => (
                   <div className="investmentRow" key={investmentClass.name}>
@@ -268,7 +280,10 @@ export function Overview() {
               )}
 
               <div className="progressTrack" aria-hidden="true">
-                <span className="progressFill tinyFill" style={{ width: hasData ? "18%" : "3%" }} />
+                <span
+                  className="progressFill tinyFill"
+                  style={{ width: `${hasData ? Math.max(0, topInvestmentClassShare) : 0}%` }}
+                />
               </div>
             </div>
           </article>
@@ -282,12 +297,16 @@ export function Overview() {
             </header>
 
             <div className="card-panel-body chartBody">
-              <p className="metricValue">
+              <p className={`metricValue ${isMonthNetNegative ? "negativeFlow" : ""}`}>
                 {hasData
-                  ? formatMoney(data?.balanceHistory.at(-1)?.value ?? 0)
+                  ? formatMoney(monthNetFlow)
                   : loading
                     ? t("states.loadingShort")
                     : formatMoney(0)}
+              </p>
+
+              <p className="smallMeta">
+                {t("cards.balanceHistory.explanation")}
               </p>
 
               <div className="chartMock">
@@ -367,6 +386,10 @@ export function Overview() {
 
         .investValue {
           color: color-mix(in srgb, var(--primary) 84%, var(--foreground) 16%);
+        }
+
+        .negativeFlow {
+          color: color-mix(in srgb, #e44b4b 78%, var(--foreground) 22%);
         }
 
         .smallMeta {
