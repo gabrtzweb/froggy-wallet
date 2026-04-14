@@ -25,10 +25,11 @@ export async function GET(req: Request) {
 
     const items = await Promise.all(
       itemIds.map(async (itemId) => {
-        const [item, accountsResponse, investmentsResponse] = await Promise.all([
+        const [item, accountsResponse, investmentsResponse, identity] = await Promise.all([
           pluggy.fetchItem(itemId),
           pluggy.fetchAccounts(itemId),
           pluggy.fetchInvestments(itemId, undefined, { pageSize: 500 }),
+          pluggy.fetchIdentityByItemId(itemId).catch(() => null),
         ]);
 
         return {
@@ -36,6 +37,7 @@ export async function GET(req: Request) {
           item,
           accounts: accountsResponse.results,
           investments: investmentsResponse.results,
+          identity,
         };
       }),
     );

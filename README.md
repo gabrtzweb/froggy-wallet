@@ -2,6 +2,14 @@
 
 Personal finance dashboard with Open Finance integration using Pluggy API.
 
+## Current Features
+
+- Home page with a marketing-style dashboard preview and navigation into the app.
+- Overview page with bank accounts, credit cards, investments, and balance evolution.
+- Settings page with profile editing, connection summaries, and quick access to debug data.
+- User information page that reads Pluggy data for profile details, including full name, document ID, birth date, e-mail, phone, and address when available.
+- Pluggy debug endpoint for inspecting configured items, accounts, investments, and identity payload.
+
 ## Setup
 
 1. Install dependencies:
@@ -49,6 +57,16 @@ Reminder: keep real credentials only in process.env (.env.local for local dev):
 - PLUGGY_CLIENT_ID
 - PLUGGY_CLIENT_SECRET
 
+## Security Notes
+
+- The API routes under /api are public HTTP endpoints. Do not expose this app to untrusted users without adding authentication or another access control layer.
+- The user information and debug Pluggy endpoints can return personal data from the connected item, so treat their responses as sensitive.
+- Keep .env.local out of git. The current .gitignore already ignores .env* files, which is the important protection for local Pluggy credentials and item IDs.
+- Do not move Pluggy credentials to any NEXT_PUBLIC_ variable.
+- If you add more sensitive runtime files later, extend .gitignore instead of committing them.
+
+Any deployment exposed to the internet should add authentication or an equivalent access-control layer for routes that return Pluggy data.
+
 ## Client Data Fetching Standard
 
 Use SWR for all client-side API data in current and future pages (overview, settings, flow, planning, assets, and new routes).
@@ -62,3 +80,9 @@ Rules:
 - Surface `errorMessage` but avoid clearing existing UI when cached data exists.
 
 Global defaults are configured once in `app/providers.tsx` through `SWRConfig`.
+
+## Roadmap
+
+- Flow page: add transaction analytics, recent activity, and cash flow summaries.
+- Assets page: add holdings, categories, and asset breakdowns.
+- Planning page: add goals, budgets, and forward-looking financial planning.

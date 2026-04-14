@@ -11,6 +11,16 @@ import {
 } from "@/app/components/ui/card-panel";
 import { DetailPageHeader } from "@/app/components/ui/detail-page-header";
 import { createProfileInitials, useProfileName } from "@/app/lib/profile-client";
+import { useCachedApi } from "@/app/lib/use-cached-api";
+
+type UserInformationResponse = {
+  fullName: string | null;
+  documentId: string | null;
+  birthDate: string | null;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+};
 
 type PlaceholderField = {
   label: string;
@@ -30,12 +40,57 @@ function DetailField({ label, value, icon }: PlaceholderField) {
   );
 }
 
+function formatBirthDateForDisplay(value: string, placeholder: string) {
+  if (!value) {
+    return placeholder;
+  }
+
+  const dateParts = value.split("-").map((part) => Number(part));
+  if (dateParts.length !== 3 || dateParts.some((part) => !Number.isInteger(part))) {
+    return placeholder;
+  }
+
+  const [year, month, day] = dateParts;
+  if (year < 1000 || month < 1 || month > 12 || day < 1 || day > 31) {
+    return placeholder;
+  }
+
+  return `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${String(year).padStart(4, "0")}`;
+}
+
+function formatPhoneForDisplay(value: string, placeholder: string) {
+  const digits = value.replace(/\D/g, "");
+
+  if (!digits) {
+    return placeholder;
+  }
+
+  if (digits.length <= 4) {
+    return digits;
+  }
+
+  return `${digits.slice(0, -4)}-${digits.slice(-4)}`;
+}
+
 export function SettingsUserInformationDetails() {
   const t = useTranslations("settings");
   const locale = useLocale();
   const placeholder = t("details.userInformation.placeholder");
   const fallbackName = t("details.userInformation.fallbackName");
+  const { data } = useCachedApi<UserInformationResponse>("/api/user-information");
+  const apiFullName = data?.fullName?.trim() ?? "";
+  const apiDocumentId = data?.documentId?.trim() ?? "";
+  const apiBirthDate = data?.birthDate?.trim() ?? "";
+  const apiEmail = data?.email?.trim() ?? "";
+  const apiPhone = data?.phone?.trim() ?? "";
+  const apiAddress = data?.address?.trim() ?? "";
   const displayName = useProfileName(fallbackName);
+  const fullName = apiFullName || placeholder;
+  const documentId = apiDocumentId || placeholder;
+  const birthDate = formatBirthDateForDisplay(apiBirthDate, placeholder);
+  const email = apiEmail || placeholder;
+  const phone = formatPhoneForDisplay(apiPhone, placeholder);
+  const address = apiAddress || placeholder;
 
   return (
     <div className="app-page">
@@ -60,32 +115,32 @@ export function SettingsUserInformationDetails() {
             <div className="detailFieldGrid detailFieldGrid--profile">
               <DetailField
                 label={t("details.userInformation.fields.name")}
-                value={placeholder}
+                value={fullName}
                 icon={<UserCircle2 size={13} aria-hidden="true" />}
               />
               <DetailField
                 label={t("details.userInformation.fields.idDocument")}
-                value={placeholder}
+                value={documentId}
                 icon={<IdCard size={13} aria-hidden="true" />}
               />
               <DetailField
                 label={t("details.userInformation.fields.birthDate")}
-                value={placeholder}
+                value={birthDate}
                 icon={<CalendarDays size={13} aria-hidden="true" />}
               />
               <DetailField
                 label={t("details.userInformation.fields.email")}
-                value={placeholder}
+                value={email}
                 icon={<Mail size={13} aria-hidden="true" />}
               />
               <DetailField
                 label={t("details.userInformation.fields.phone")}
-                value={placeholder}
+                value={phone}
                 icon={<Phone size={13} aria-hidden="true" />}
               />
               <DetailField
                 label={t("details.userInformation.fields.address")}
-                value={placeholder}
+                value={address}
                 icon={<MapPin size={13} aria-hidden="true" />}
               />
             </div>
