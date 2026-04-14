@@ -1,18 +1,21 @@
 "use client";
 
 import {
+  Copy,
   Clock3,
   Cloud,
   Download,
   Eye,
+  EyeOff,
   Link2,
+  Plus,
   Pencil,
   Trash2,
   Upload,
   UserCircle2,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { InstitutionLogo } from "@/app/components/institution-logo";
 import { CardAction } from "@/app/components/ui/card-action";
 import {
@@ -67,6 +70,12 @@ type ConnectionSummary = {
   updatedAt: string | null;
 };
 
+type ConnectionFormState = {
+  clientId: string;
+  clientSecret: string;
+  itemIds: string;
+};
+
 function formatUpdatedRelative(dateValue: string | null | undefined, locale: string) {
   if (!dateValue) {
     return locale === "pt-BR" ? "Sem atualizacao" : "No updates";
@@ -117,6 +126,13 @@ export function Settings() {
   const savedName = useProfileName(fallbackName);
   const [draftName, setDraftName] = useState(savedName);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [isConnectionModalOpen, setIsConnectionModalOpen] = useState(false);
+  const [showClientSecret, setShowClientSecret] = useState(false);
+  const [connectionForm, setConnectionForm] = useState<ConnectionFormState>({
+    clientId: "",
+    clientSecret: "",
+    itemIds: "",
+  });
 
   const connections = useMemo(() => {
     const items = data?.items ?? [];
@@ -140,6 +156,27 @@ export function Settings() {
     persistProfileName(trimmedDraftName);
     setDraftName(trimmedDraftName);
     setIsEditingName(false);
+  }
+
+  function openConnectionModal() {
+    setIsConnectionModalOpen(true);
+  }
+
+  function closeConnectionModal() {
+    setIsConnectionModalOpen(false);
+    setShowClientSecret(false);
+  }
+
+  function handleConnectionFieldChange(field: keyof ConnectionFormState, value: string) {
+    setConnectionForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  function handleConnectionSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    closeConnectionModal();
   }
 
   const desktopSlots = useMemo(() => {
@@ -214,7 +251,7 @@ export function Settings() {
                   {hasNameChanges ? (
                     <button
                       type="button"
-                      className="card-btn-outline btn-sm-outline saveNameButton"
+                      className="btn-base btn-card saveNameButton"
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={handleNameSave}
                     >
@@ -241,24 +278,22 @@ export function Settings() {
             </CardPanelHeader>
 
             <CardPanelBody>
-              <p className="card-panel-description">{t("cards.dataActions.subtitle")}</p>
-
               <div className="actionsGrid">
                 <CardAction href="/api/debug/pluggy">
-                  <Eye size={14} aria-hidden="true" />
                   {t("cards.dataActions.view")}
+                  <Eye size={14} aria-hidden="true" />
                 </CardAction>
                 <CardAction>
-                  <Trash2 size={14} aria-hidden="true" />
                   {t("cards.dataActions.remove")}
+                  <Trash2 size={14} aria-hidden="true" />
                 </CardAction>
                 <CardAction>
-                  <Download size={14} aria-hidden="true" />
                   {t("cards.dataActions.export")}
+                  <Download size={14} aria-hidden="true" />
                 </CardAction>
                 <CardAction>
-                  <Upload size={14} aria-hidden="true" />
                   {t("cards.dataActions.import")}
+                  <Upload size={14} aria-hidden="true" />
                 </CardAction>
               </div>
             </CardPanelBody>
@@ -273,6 +308,14 @@ export function Settings() {
             </CardPanelHeader>
 
             <CardPanelBody>
+              <div className="connectionsToolbar">
+                <button type="button" className="btn-base btn-card buttonWithIcon" onClick={openConnectionModal}>
+                  {t("cards.connections.newConnection")}
+                  <Plus size={14} aria-hidden="true" />
+                </button>
+                <p className="connectionsCount">{t("cards.connections.activeCount", { count: connections.length })}</p>
+              </div>
+
               {connectionsError ? <p className="connectionError">{connectionsError}</p> : null}
               {showFirstLoadState ? <p className="connectionLoading">{loadingConnectionsLabel}</p> : null}
               <div className="connectionGrid">
@@ -316,6 +359,106 @@ export function Settings() {
         </section>
       </main>
 
+      {isConnectionModalOpen ? (
+        <div className="connectionModalBackdrop" role="presentation" onMouseDown={closeConnectionModal}>
+          <div
+            className="connectionModalShell"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="byok-connection-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <CardPanel className="connectionModal">
+              <CardPanelHeader className="card-panel-header--split connectionModalHeader">
+                <h2 id="byok-connection-title" className="card-title">
+                  {t("cards.connections.modal.title")}
+                </h2>
+
+                <button
+                  type="button"
+                  className="modalCloseIcon"
+                  onClick={closeConnectionModal}
+                  aria-label={t("cards.connections.modal.close")}
+                >
+                  ×
+                </button>
+              </CardPanelHeader>
+
+              <CardPanelBody>
+                <form className="modalFormStack" onSubmit={handleConnectionSubmit}>
+                  <label className="fieldStack">
+                    <span className="card-label">{t("cards.connections.modal.clientId")}</span>
+                    <div className="inputControlWrap">
+                      <input
+                        className="input-like-base connectionInput"
+                        value={connectionForm.clientId}
+                        onChange={(event) => handleConnectionFieldChange("clientId", event.target.value)}
+                        placeholder={t("cards.connections.modal.clientIdPlaceholder")}
+                        autoComplete="off"
+                      />
+                      <button type="button" className="inputIconButton" aria-label={t("cards.connections.modal.copy")}>
+                        <Copy size={14} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </label>
+
+                  <label className="fieldStack">
+                    <span className="card-label">{t("cards.connections.modal.clientSecret")}</span>
+                    <div className="inputControlWrap">
+                      <input
+                        className="input-like-base connectionInput"
+                        type={showClientSecret ? "text" : "password"}
+                        value={connectionForm.clientSecret}
+                        onChange={(event) => handleConnectionFieldChange("clientSecret", event.target.value)}
+                        placeholder={t("cards.connections.modal.clientSecretPlaceholder")}
+                        autoComplete="off"
+                      />
+                      <button
+                        type="button"
+                        className="inputIconButton inputIconButton--visibility"
+                        aria-label={showClientSecret ? t("cards.connections.modal.hideSecret") : t("cards.connections.modal.showSecret")}
+                        onClick={() => setShowClientSecret((current) => !current)}
+                      >
+                        {showClientSecret ? <EyeOff size={14} aria-hidden="true" /> : <Eye size={14} aria-hidden="true" />}
+                      </button>
+                      <button type="button" className="inputIconButton inputIconButton--copy" aria-label={t("cards.connections.modal.copy")}>
+                        <Copy size={14} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </label>
+
+                  <label className="fieldStack">
+                    <span className="card-label">{t("cards.connections.modal.itemIds")}</span>
+                    <div className="inputControlWrap">
+                      <input
+                        className="input-like-base connectionInput"
+                        type="text"
+                        value={connectionForm.itemIds}
+                        onChange={(event) => handleConnectionFieldChange("itemIds", event.target.value)}
+                        placeholder={t("cards.connections.modal.itemIdsPlaceholder")}
+                        spellCheck={false}
+                        data-gramm="false"
+                        data-gramm_editor="false"
+                        data-enable-grammarly="false"
+                      />
+                      <button type="button" className="inputIconButton" aria-label={t("cards.connections.modal.copy")}>
+                        <Copy size={14} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </label>
+
+                  <div className="modalActions">
+                    <button type="submit" className="btn-base btn-card">
+                      {t("cards.connections.modal.saveAndConnect")}
+                    </button>
+                  </div>
+                </form>
+              </CardPanelBody>
+            </CardPanel>
+          </div>
+        </div>
+      ) : null}
+
       <style jsx global>{`
         .layoutGrid {
           display: grid;
@@ -334,6 +477,29 @@ export function Settings() {
         .panelFull {
           grid-column: 1 / -1;
           min-height: 238px;
+        }
+
+        .connectionsToolbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.65rem;
+          width: 100%;
+          margin-bottom: 0.85rem;
+          flex-wrap: wrap;
+        }
+
+        .connectionsCount {
+          margin: 0;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+          width: fit-content;
+          color: var(--primary);
+          font-size: calc(var(--font-size-sm) - 2px);
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          font-weight: 700;
         }
 
         .userBody {
@@ -396,7 +562,7 @@ export function Settings() {
         .nameField {
           width: 100%;
           border: 1px solid color-mix(in srgb, var(--glass-border) 84%, transparent);
-          background: color-mix(in srgb, var(--background) 56%, transparent);
+          background: color-mix(in srgb, var(--background) 52%, transparent);
           display: inline-flex;
           align-items: center;
           justify-content: flex-start;
@@ -514,6 +680,55 @@ export function Settings() {
           background: color-mix(in srgb, var(--background) 15%, transparent);
         }
 
+        .connectionModalBackdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 40;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          background: color-mix(in srgb, #000 62%, transparent);
+          backdrop-filter: blur(10px);
+        }
+
+        .connectionModalShell {
+          width: min(100%, 720px);
+          max-height: calc(100dvh - 2rem);
+          margin: auto;
+        }
+
+        .connectionModal {
+          overflow-y: auto;
+        }
+
+        .connectionModalHeader {
+          padding-top: 0.9rem;
+          padding-bottom: 0.9rem;
+          min-height: calc(var(--control-height-card) + 1.8rem);
+        }
+
+        .modalCloseIcon {
+          border: 0;
+          background: transparent;
+          color: color-mix(in srgb, var(--foreground) 78%, transparent);
+          width: 24px;
+          height: 24px;
+          padding: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: var(--font-size-heading);
+          line-height: 1;
+          cursor: pointer;
+        }
+
+        .modalCloseIcon:hover {
+          color: color-mix(in srgb, var(--foreground) 96%, transparent);
+        }
+
         .connectionTopRow {
           display: flex;
           align-items: center;
@@ -585,6 +800,10 @@ export function Settings() {
           .connectionGrid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
           }
+
+          .connectionModal {
+            width: min(100%, 640px);
+          }
         }
 
         @media (max-width: 640px) {
@@ -617,6 +836,12 @@ export function Settings() {
           }
 
           .profileRow {
+            align-items: stretch;
+          }
+
+          .connectionsToolbar,
+          .modalActions {
+            flex-direction: column;
             align-items: stretch;
           }
         }

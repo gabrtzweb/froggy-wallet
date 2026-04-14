@@ -90,8 +90,26 @@
       },
       "connections": {
         "title": "Conexões",
-        "activeCount": "1 ativa",
+        "activeCount": "{count} conexões ativas",
         "newConnection": "Nova conexão",
+        "select": "Selecionar filtro de conexão",
+        "modal": {
+          "title": "Nova conexao Pluggy",
+          "back": "Voltar",
+          "close": "Fechar dialogo",
+          "clientId": "Pluggy Client ID",
+          "clientIdPlaceholder": "Cole seu Client ID",
+          "clientSecret": "Pluggy Client Secret",
+          "clientSecretPlaceholder": "Cole seu Client Secret",
+          "itemIds": "IDs dos itens",
+          "itemIdsPlaceholder": "item_id_1, item_id_2",
+          "copy": "Copiar valor",
+          "showSecret": "Mostrar client secret",
+          "hideSecret": "Ocultar client secret",
+          "disconnect": "Desconectar Pluggy",
+          "cancel": "Cancelar",
+          "saveAndConnect": "Salvar e conectar"
+        },
         "sample": {
           "name": "Carteira Física",
           "updated": "11 dias atrás",

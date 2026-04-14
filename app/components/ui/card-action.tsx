@@ -20,7 +20,7 @@ export function CardAction({
   type = "button",
   className,
 }: CardActionProps) {
-  const actionClassName = joinClasses("card-btn-outline btn-sm-outline", className);
+  const actionClassName = joinClasses("btn-base btn-card buttonWithIcon", className);
 
   if (href) {
     return (

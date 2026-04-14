@@ -219,10 +219,6 @@ export function Home() {
           margin-top: 0.5rem;
         }
 
-        .buttonWithIcon {
-          gap: 0.5rem;
-        }
-
         .buttonIconWrap {
           display: inline-flex;
           align-items: center;

@@ -90,8 +90,26 @@
       },
       "connections": {
         "title": "Connections",
-        "activeCount": "1 active",
+        "activeCount": "{count} active connections",
         "newConnection": "New connection",
+        "select": "Select connection filter",
+        "modal": {
+          "title": "New Pluggy connection",
+          "back": "Back",
+          "close": "Close dialog",
+          "clientId": "Pluggy Client ID",
+          "clientIdPlaceholder": "Paste your Client ID",
+          "clientSecret": "Pluggy Client Secret",
+          "clientSecretPlaceholder": "Paste your Client Secret",
+          "itemIds": "Item IDs",
+          "itemIdsPlaceholder": "item_id_1, item_id_2",
+          "copy": "Copy value",
+          "showSecret": "Show client secret",
+          "hideSecret": "Hide client secret",
+          "disconnect": "Disconnect Pluggy",
+          "cancel": "Cancel",
+          "saveAndConnect": "Save and connect"
+        },
         "sample": {
           "name": "Physical Wallet",
           "updated": "11 days ago",
