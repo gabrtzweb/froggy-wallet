@@ -1,10 +1,19 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { DashboardUnavailableCard } from "@/app/components/ui/dashboard-unavailable";
 import { PageHeader } from "@/app/components/ui/page-header";
 
-export function Flow() {
+type FlowProps = {
+  isPluggyAvailable?: boolean;
+};
+
+export function Flow({ isPluggyAvailable = true }: FlowProps) {
   const t = useTranslations("flow");
+
+  if (!isPluggyAvailable) {
+    return <DashboardUnavailableCard />;
+  }
 
   return (
     <div className="app-page">

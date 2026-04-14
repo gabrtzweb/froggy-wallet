@@ -10,6 +10,7 @@ import {
   CardPanelHeader,
   CardPanelKicker,
 } from "@/app/components/ui/card-panel";
+import { DashboardUnavailableCard } from "@/app/components/ui/dashboard-unavailable";
 import { PageHeader } from "@/app/components/ui/page-header";
 import {
   resolveInstitutionIdentity,
@@ -104,7 +105,19 @@ function buildLinePath(values: Array<{ value: number }>) {
     .join(" ");
 }
 
-export function Overview() {
+type OverviewProps = {
+  isPluggyAvailable?: boolean;
+};
+
+export function Overview({ isPluggyAvailable = true }: OverviewProps) {
+  if (!isPluggyAvailable) {
+    return <DashboardUnavailableCard />;
+  }
+
+  return <OverviewContent />;
+}
+
+function OverviewContent() {
   const locale = useLocale();
   const t = useTranslations("overview");
   const { data, errorMessage, isInitialLoading } = useCachedApi<OverviewData>(

@@ -396,7 +396,7 @@ export function Settings() {
         .nameField {
           width: 100%;
           border: 1px solid color-mix(in srgb, var(--glass-border) 84%, transparent);
-          background: color-mix(in srgb, var(--background) 35%, transparent);
+          background: color-mix(in srgb, var(--background) 56%, transparent);
           display: inline-flex;
           align-items: center;
           justify-content: flex-start;

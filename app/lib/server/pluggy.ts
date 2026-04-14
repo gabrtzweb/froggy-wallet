@@ -1,6 +1,13 @@
 import "server-only";
 import { PluggyClient } from "pluggy-sdk";
 
+export function hasPluggyCredentials() {
+  const clientId = process.env.PLUGGY_CLIENT_ID ?? process.env.CLIENT_ID;
+  const clientSecret = process.env.PLUGGY_CLIENT_SECRET ?? process.env.CLIENT_SECRET;
+
+  return Boolean(clientId && clientSecret);
+}
+
 export function getPluggyClient() {
   const clientId = process.env.PLUGGY_CLIENT_ID ?? process.env.CLIENT_ID;
   const clientSecret = process.env.PLUGGY_CLIENT_SECRET ?? process.env.CLIENT_SECRET;

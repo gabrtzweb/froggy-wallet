@@ -1,10 +1,19 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { DashboardUnavailableCard } from "@/app/components/ui/dashboard-unavailable";
 import { PageHeader } from "@/app/components/ui/page-header";
 
-export function Resources() {
+type ResourcesProps = {
+  isPluggyAvailable?: boolean;
+};
+
+export function Resources({ isPluggyAvailable = true }: ResourcesProps) {
   const t = useTranslations("resources");
+
+  if (!isPluggyAvailable) {
+    return <DashboardUnavailableCard />;
+  }
 
   return (
     <div className="app-page">

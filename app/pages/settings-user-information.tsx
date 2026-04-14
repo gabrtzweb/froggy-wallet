@@ -2,6 +2,7 @@
 
 import { CalendarDays, IdCard, Mail, MapPin, Phone, UserCircle2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 import {
   CardPanel,
   CardPanelBody,
@@ -14,7 +15,7 @@ import { createProfileInitials, useProfileName } from "@/app/lib/profile-client"
 type PlaceholderField = {
   label: string;
   value: string;
-  icon: JSX.Element;
+  icon: ReactNode;
 };
 
 function DetailField({ label, value, icon }: PlaceholderField) {
@@ -59,7 +60,7 @@ export function SettingsUserInformationDetails() {
             <div className="detailFieldGrid detailFieldGrid--profile">
               <DetailField
                 label={t("details.userInformation.fields.name")}
-                value={displayName}
+                value={placeholder}
                 icon={<UserCircle2 size={13} aria-hidden="true" />}
               />
               <DetailField

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { ComponentType } from "react";
+import { hasPluggyCredentials } from "@/app/lib/server/pluggy";
 import { Resources } from "@/app/pages/assets";
 import { Flow } from "@/app/pages/flow";
 import { Overview } from "@/app/pages/overview";
@@ -12,13 +13,19 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-const routes: Record<Slug, ComponentType> = {
+type RouteProps = {
+  isPluggyAvailable?: boolean;
+};
+
+const routes: Record<Slug, ComponentType<RouteProps>> = {
   overview: Overview,
   flow: Flow,
   resources: Resources,
   planning: Planning,
-  settings: Settings,
+  settings: Settings as ComponentType<RouteProps>,
 };
+
+const pluggyGuardedRoutes = new Set<Slug>(["overview", "flow", "resources", "planning"]);
 
 export function generateStaticParams() {
   return Object.keys(routes).map((slug) => ({ slug }));
@@ -34,5 +41,9 @@ export default async function SlugPage({ params }: Props) {
     notFound();
   }
 
-  return <Route />;
+  const typedSlug = slug as Slug;
+  const shouldGuardWithPluggy = pluggyGuardedRoutes.has(typedSlug);
+  const isPluggyAvailable = shouldGuardWithPluggy ? hasPluggyCredentials() : true;
+
+  return <Route isPluggyAvailable={isPluggyAvailable} />;
 }

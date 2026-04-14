@@ -32,22 +32,36 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const messages = await getMessages();
+  const themeInitializer = `(() => {
+    try {
+      const storedTheme = window.localStorage.getItem("froggy-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const theme = storedTheme === "light" || storedTheme === "dark" ? storedTheme : (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  })();`;
 
   return (
     <html
       lang="en"
-      data-theme="dark"
       className={`${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitializer }} />
+      </head>
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <AppProviders>
-            <Header />
-            <div className="app-shell">
-              {children}
+            <div className="app-chrome">
+              <Header />
+              <div className="app-shell">
+                {children}
+              </div>
+              <Footer />
             </div>
-            <Footer />
           </AppProviders>
         </NextIntlClientProvider>
       </body>

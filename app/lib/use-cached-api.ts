@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR, { type SWRConfiguration } from "swr";
+import { useGlobalPageLoading } from "@/app/lib/page-loading";
 
 type UseCachedApiResult<T> = {
   data: T | undefined;
@@ -42,11 +43,14 @@ export function useCachedApi<T>(
     (url: string) => fetchJson<T>(url),
     config,
   );
+  const isInitialLoading = isLoading && !data;
+
+  useGlobalPageLoading(isInitialLoading);
 
   return {
     data,
     errorMessage: error?.message ?? null,
-    isInitialLoading: isLoading && !data,
+    isInitialLoading,
     isRefreshing: isValidating && !!data,
   };
 }

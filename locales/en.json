@@ -22,7 +22,7 @@
     },
     "account": {
       "hello": "Hello",
-      "name": "Rodrigo"
+      "name": "User"
     }
   },
   "footer": {
@@ -132,7 +132,7 @@
         "emptyState": "This section is intentionally empty for now.",
         "save": "Save",
         "profileImageHint": "Profile photo editing will be available soon",
-        "fallbackName": "Rodrigo",
+        "fallbackName": "User",
         "placeholder": "Not available yet",
         "fields": {
           "name": "Full name",
@@ -192,5 +192,13 @@
   "planning": {
     "title": "Planning",
     "subtitle": "Financial goals and plans for the future you."
+  },
+  "globalStates": {
+    "loadingDashboard": "Loading dashboard...",
+    "dashboardUnavailable": {
+      "title": "Dashboard unavailable",
+      "description": "You need to add a new connection.",
+      "action": "Start now"
+    }
   }
 }
