@@ -1,7 +1,11 @@
 import { useSyncExternalStore } from "react";
+import {
+  PROFILE_IMAGE_STORAGE_KEY,
+  PROFILE_NAME_STORAGE_KEY,
+  PROFILE_UPDATED_EVENT,
+} from "@/app/lib/profile-storage";
 
-export const PROFILE_NAME_STORAGE_KEY = "froggy-profile-name";
-export const PROFILE_UPDATED_EVENT = "froggy-profile-updated";
+export { PROFILE_NAME_STORAGE_KEY, PROFILE_UPDATED_EVENT };
 
 export function createProfileInitials(name: string) {
   const initials = name
@@ -70,5 +74,22 @@ export function persistProfileName(name: string) {
     new CustomEvent(PROFILE_UPDATED_EVENT, {
       detail: { name: normalizedName },
     }),
+  );
+}
+
+function getStoredProfileImageDataUrl() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const storedValue = window.localStorage.getItem(PROFILE_IMAGE_STORAGE_KEY)?.trim();
+  return storedValue || null;
+}
+
+export function useProfileImageDataUrl() {
+  return useSyncExternalStore(
+    subscribeToProfileUpdates,
+    getStoredProfileImageDataUrl,
+    () => null,
   );
 }

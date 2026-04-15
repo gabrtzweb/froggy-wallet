@@ -365,10 +365,6 @@ function OverviewContent() {
           grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
-        .panelTop {
-          min-height: 286px;
-        }
-
         .panelBottom {
           grid-column: 1 / -1;
           min-height: 260px;

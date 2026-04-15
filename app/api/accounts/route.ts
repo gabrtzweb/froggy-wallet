@@ -12,7 +12,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const pluggy = getPluggyClient();
+    const pluggy = await getPluggyClient();
     const response = await pluggy.fetchAccounts(itemId);
 
     return Response.json(response);

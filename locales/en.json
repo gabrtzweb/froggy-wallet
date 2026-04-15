@@ -78,12 +78,17 @@
       "userData": {
         "title": "User data",
         "imageHint": "JPG, PNG up to 2MB",
+        "profileImageAlt": "Profile image",
+        "profileImageInvalidType": "Only JPG and PNG files are allowed.",
+        "profileImageTooLarge": "Image must be up to 2MB.",
         "userInfo": "User information"
       },
       "dataActions": {
         "title": "Data actions",
         "subtitle": "Manage backup and account data actions.",
-        "view": "View data",
+        "viewUserData": "View user data",
+        "viewApiData": "View API data",
+        "iconActionsGroupAriaLabel": "Data action shortcuts",
         "remove": "Remove data",
         "export": "Export",
         "import": "Import"
@@ -163,6 +168,19 @@
         "sections": {
           "contact": "Contact",
           "address": "Address"
+        }
+      },
+      "userData": {
+        "title": "User data",
+        "informationTitle": "User data information",
+        "byokHint": "BYOK credentials will appear here after local setup.",
+        "fields": {
+          "profileName": "Profile name"
+        },
+        "sections": {
+          "localData": "Local data",
+          "byok": "BYOK credentials",
+          "savedJson": "Saved local JSON"
         }
       }
     }

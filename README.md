@@ -16,23 +16,21 @@ Personal finance dashboard with Open Finance integration using Pluggy API.
 
     `npm install`
 
-1. Create your local environment file...
+1. Start the app:
 
-    `.env.local`
+    `npm run dev`
 
-1. In .env.local, place your real Pluggy credentials:
+1. Open Settings and add your Pluggy credentials through the BYOK modal:
 
-    ```bash
-    PLUGGY_CLIENT_ID=your_real_client_id
-    PLUGGY_CLIENT_SECRET=your_real_client_secret
-    PLUGGY_DASHBOARD_ITEM_IDS=your_item_id_1,your_item_id_2
-    ```
+    - Client ID
+    - Client Secret
+    - Item IDs
 
 Important:
 
-- Keep credentials server-side only.
-- Never expose PLUGGY_CLIENT_ID or PLUGGY_CLIENT_SECRET in browser/client code.
-- Do not commit .env.local to git.
+- Credentials are stored locally in your browser for this prototype flow.
+- Import/Export in Data Actions uses this same local JSON payload.
+- Treat exported credential files as sensitive.
 
 ## Run
 
@@ -51,17 +49,12 @@ GET /api/transactions?accountId=YOUR_ACCOUNT_ID
 Returns the list of transactions for a specific account.
 
 These endpoints are designed for the personal-project flow where item IDs are created once in Pluggy Dashboard and stored in .env.local.
-
-Reminder: keep real credentials only in process.env (.env.local for local dev):
-
-- PLUGGY_CLIENT_ID
-- PLUGGY_CLIENT_SECRET
+These endpoints use the BYOK credentials and item IDs saved through Settings.
 
 ## Security Notes
 
 - The API routes under /api are public HTTP endpoints. Do not expose this app to untrusted users without adding authentication or another access control layer.
 - The user information and debug Pluggy endpoints can return personal data from the connected item, so treat their responses as sensitive.
-- Keep .env.local out of git. The current .gitignore already ignores .env* files, which is the important protection for local Pluggy credentials and item IDs.
 - Do not move Pluggy credentials to any NEXT_PUBLIC_ variable.
 - If you add more sensitive runtime files later, extend .gitignore instead of committing them.
 

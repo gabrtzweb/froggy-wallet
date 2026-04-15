@@ -4,20 +4,24 @@ import {
   Copy,
   Clock3,
   Cloud,
+  Database,
   Download,
   Eye,
   EyeOff,
   Link2,
   Plus,
   Pencil,
+  Save,
   Trash2,
   Upload,
   UserCircle2,
 } from "lucide-react";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState, type FormEvent } from "react";
+import Link from "next/link";
+import { useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useSWRConfig } from "swr";
 import { InstitutionLogo } from "@/app/components/institution-logo";
-import { CardAction } from "@/app/components/ui/card-action";
 import {
   CardPanel,
   CardPanelBody,
@@ -27,10 +31,23 @@ import {
 import { PageHeader } from "@/app/components/ui/page-header";
 import { SectionLink } from "@/app/components/ui/section-link";
 import {
+  applyImportedAppLocalData,
+  clearAppLocalData,
+  persistByokConfig,
+  persistProfileImageDataUrl,
+  readAppLocalDataFromStorage,
+  readByokConfig,
+} from "@/app/lib/local-data";
+import {
   getInstitutionLogoUrl,
   resolveInstitutionIdentity,
 } from "@/app/lib/institution-utils";
-import { createProfileInitials, persistProfileName, useProfileName } from "@/app/lib/profile-client";
+import {
+  createProfileInitials,
+  persistProfileName,
+  useProfileImageDataUrl,
+  useProfileName,
+} from "@/app/lib/profile-client";
 import { useCachedApi } from "@/app/lib/use-cached-api";
 
 type RawPluggyAccount = {
@@ -76,6 +93,14 @@ type ConnectionFormState = {
   itemIds: string;
 };
 
+function createEmptyConnectionForm(): ConnectionFormState {
+  return {
+    clientId: "",
+    clientSecret: "",
+    itemIds: "",
+  };
+}
+
 function formatUpdatedRelative(dateValue: string | null | undefined, locale: string) {
   if (!dateValue) {
     return locale === "pt-BR" ? "Sem atualizacao" : "No updates";
@@ -119,25 +144,42 @@ function getConnectionSummary(item: RawPluggyItem): ConnectionSummary {
 export function Settings() {
   const t = useTranslations("settings");
   const locale = useLocale();
+  const { mutate } = useSWRConfig();
   const fallbackName = t("details.userInformation.fallbackName");
   const { data, errorMessage, isInitialLoading } = useCachedApi<RawPluggyResponse>(
     "/api/debug/pluggy",
+    { keepPreviousData: false },
   );
   const savedName = useProfileName(fallbackName);
   const [draftName, setDraftName] = useState(savedName);
   const [isEditingName, setIsEditingName] = useState(false);
   const [isConnectionModalOpen, setIsConnectionModalOpen] = useState(false);
   const [showClientSecret, setShowClientSecret] = useState(false);
-  const [connectionForm, setConnectionForm] = useState<ConnectionFormState>({
-    clientId: "",
-    clientSecret: "",
-    itemIds: "",
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const profileImageInputRef = useRef<HTMLInputElement | null>(null);
+  const profileImageDataUrl = useProfileImageDataUrl();
+  const [connectionForm, setConnectionForm] = useState<ConnectionFormState>(() => {
+    const byok = readByokConfig();
+
+    if (!byok) {
+      return createEmptyConnectionForm();
+    }
+
+    return {
+      clientId: byok.clientId,
+      clientSecret: byok.clientSecret,
+      itemIds: byok.itemIds,
+    };
   });
 
   const connections = useMemo(() => {
+    if (errorMessage) {
+      return [];
+    }
+
     const items = data?.items ?? [];
     return items.map(getConnectionSummary);
-  }, [data]);
+  }, [data, errorMessage]);
   const connectionsError = errorMessage;
   const showFirstLoadState = isInitialLoading;
   const loadingConnectionsLabel = locale === "pt-BR" ? "Carregando conexoes..." : "Loading connections...";
@@ -158,7 +200,69 @@ export function Settings() {
     setIsEditingName(false);
   }
 
+  function handleAvatarUploadClick() {
+    profileImageInputRef.current?.click();
+  }
+
+  function readFileAsDataUrl(file: File) {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onerror = () => reject(new Error("Failed to read file."));
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result === "string") {
+          resolve(result);
+          return;
+        }
+
+        reject(new Error("Invalid file data."));
+      };
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleProfileImageChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    const allowedTypes = new Set(["image/jpeg", "image/png"]);
+    const maxSizeBytes = 2 * 1024 * 1024;
+
+    if (!allowedTypes.has(file.type)) {
+      window.alert(t("cards.userData.profileImageInvalidType"));
+      return;
+    }
+
+    if (file.size > maxSizeBytes) {
+      window.alert(t("cards.userData.profileImageTooLarge"));
+      return;
+    }
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      persistProfileImageDataUrl(dataUrl);
+    } catch {
+      window.alert(locale === "pt-BR" ? "Nao foi possivel ler a imagem." : "Could not read image file.");
+    }
+  }
+
   function openConnectionModal() {
+    const byok = readByokConfig();
+    setConnectionForm(
+      byok
+        ? {
+          clientId: byok.clientId,
+          clientSecret: byok.clientSecret,
+          itemIds: byok.itemIds,
+        }
+        : createEmptyConnectionForm(),
+    );
     setIsConnectionModalOpen(true);
   }
 
@@ -174,9 +278,70 @@ export function Settings() {
     }));
   }
 
-  function handleConnectionSubmit(event: FormEvent<HTMLFormElement>) {
+  async function refreshPluggyViews() {
+    await Promise.all([
+      mutate("/api/debug/pluggy"),
+      mutate((key) => typeof key === "string" && key.startsWith("/api/overview?")),
+    ]);
+  }
+
+  async function handleConnectionSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    persistByokConfig(connectionForm);
+    await refreshPluggyViews();
     closeConnectionModal();
+  }
+
+  function handleExportData() {
+    const payload = readAppLocalDataFromStorage();
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const fileUrl = window.URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = fileUrl;
+    anchor.download = "froggy-local-data.json";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.URL.revokeObjectURL(fileUrl);
+  }
+
+  function handleImportClick() {
+    fileInputRef.current?.click();
+  }
+
+  async function handleImportFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text) as unknown;
+      applyImportedAppLocalData(parsed);
+      const byok = readByokConfig();
+      setConnectionForm(
+        byok
+          ? {
+            clientId: byok.clientId,
+            clientSecret: byok.clientSecret,
+            itemIds: byok.itemIds,
+          }
+          : createEmptyConnectionForm(),
+      );
+      await refreshPluggyViews();
+    } catch {
+      window.alert(locale === "pt-BR" ? "Arquivo JSON inválido." : "Invalid JSON file.");
+    }
+  }
+
+  async function handleDeleteData() {
+    clearAppLocalData();
+    setConnectionForm(createEmptyConnectionForm());
+    await refreshPluggyViews();
   }
 
   const desktopSlots = useMemo(() => {
@@ -199,77 +364,7 @@ export function Settings() {
         <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
         <section className="layoutGrid" aria-label={t("title")}>
-          <CardPanel className="panelWide">
-            <CardPanelHeader>
-              <CardPanelKicker>
-                <UserCircle2 size={14} aria-hidden="true" />
-                {t("cards.userData.title")}
-              </CardPanelKicker>
-            </CardPanelHeader>
-
-            <CardPanelBody className="userBody">
-              <div className="profileRow">
-                <button type="button" className="avatarEditButton" aria-label={t("details.userInformation.profileImageHint")}>
-                  <span className="account-avatar">{profileInitials}</span>
-                  <span className="avatarEditOverlay" aria-hidden="true">
-                    <Pencil size={11} />
-                  </span>
-                </button>
-
-                <div className={`nameFieldWrap ${isEditingName ? "isEditing" : ""}`}>
-                  {isEditingName ? (
-                    <input
-                      className="nameInput input-like-base"
-                      value={draftName}
-                      onChange={(event) => setDraftName(event.target.value)}
-                      onBlur={() => {
-                        setDraftName(savedName);
-                        setIsEditingName(false);
-                      }}
-                      autoFocus
-                      aria-label={t("details.userInformation.fields.name")}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      className="nameField input-like-base"
-                      onClick={() => {
-                        setDraftName(savedName);
-                        setIsEditingName(true);
-                      }}
-                    >
-                      <span>{visibleName}</span>
-                    </button>
-                  )}
-
-                  <span className="nameEditOverlay" aria-hidden="true">
-                    <Pencil size={12} />
-                  </span>
-                </div>
-
-                <span className="saveNameSlot" aria-hidden={!hasNameChanges}>
-                  {hasNameChanges ? (
-                    <button
-                      type="button"
-                      className="btn-base btn-card saveNameButton"
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={handleNameSave}
-                    >
-                      {t("details.userInformation.save")}
-                    </button>
-                  ) : null}
-                </span>
-              </div>
-
-              <p className="helperText content-sm">{t("cards.userData.imageHint")}</p>
-
-              <div className="divider-bottom userDivider" aria-hidden="true" />
-
-              <SectionLink href="/settings/user-information" label={t("cards.userData.userInfo")} />
-            </CardPanelBody>
-          </CardPanel>
-
-          <CardPanel className="panelNarrow">
+          <CardPanel>
             <CardPanelHeader>
               <CardPanelKicker>
                 <Cloud size={14} aria-hidden="true" />
@@ -278,23 +373,139 @@ export function Settings() {
             </CardPanelHeader>
 
             <CardPanelBody>
-              <div className="actionsGrid">
-                <CardAction href="/api/debug/pluggy">
-                  {t("cards.dataActions.view")}
-                  <Eye size={14} aria-hidden="true" />
-                </CardAction>
-                <CardAction>
-                  {t("cards.dataActions.remove")}
-                  <Trash2 size={14} aria-hidden="true" />
-                </CardAction>
-                <CardAction>
-                  {t("cards.dataActions.export")}
-                  <Download size={14} aria-hidden="true" />
-                </CardAction>
-                <CardAction>
-                  {t("cards.dataActions.import")}
-                  <Upload size={14} aria-hidden="true" />
-                </CardAction>
+              <div className="actionsLayout">
+                <div className="actionsPrimaryRow">
+                  <Link href="/settings/user-data" className="btn-base btn-card buttonWithIcon">
+                    {t("cards.dataActions.viewUserData")}
+                    <Eye size={14} aria-hidden="true" />
+                  </Link>
+
+                  <Link href="/settings/api-data" className="btn-base btn-card buttonWithIcon">
+                    {t("cards.dataActions.viewApiData")}
+                    <Database size={14} aria-hidden="true" />
+                  </Link>
+                </div>
+
+                <div className="actionIconRow" role="group" aria-label={t("cards.dataActions.iconActionsGroupAriaLabel")}>
+                  <button type="button" className="btn-base btn-card btn-icon" aria-label={t("cards.dataActions.import")} onClick={handleImportClick}>
+                    <Upload size={14} aria-hidden="true" />
+                  </button>
+                  <button type="button" className="btn-base btn-card btn-icon" aria-label={t("cards.dataActions.export")} onClick={handleExportData}>
+                    <Download size={14} aria-hidden="true" />
+                  </button>
+                  <button type="button" className="btn-base btn-card buttonWithIcon" aria-label={t("cards.dataActions.remove")} onClick={handleDeleteData}>
+                    {t("cards.dataActions.remove")}
+                    <Trash2 size={14} aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/json"
+                onChange={handleImportFileChange}
+                className="hiddenFileInput"
+                aria-hidden="true"
+                tabIndex={-1}
+              />
+            </CardPanelBody>
+          </CardPanel>
+
+          <CardPanel className="panelMiddle">
+            <CardPanelHeader>
+              <CardPanelKicker>
+                <UserCircle2 size={14} aria-hidden="true" />
+                {t("cards.userData.title")}
+              </CardPanelKicker>
+            </CardPanelHeader>
+
+            <CardPanelBody>
+              <div className="userDataGrid">
+                <article className="userDataCard">
+                  <div className="userBody">
+                    <div className="profileRow">
+                      <button type="button" className="avatarEditButton" aria-label={t("details.userInformation.profileImageHint")} onClick={handleAvatarUploadClick}>
+                        {profileImageDataUrl ? (
+                          <Image
+                            src={profileImageDataUrl}
+                            alt={t("cards.userData.profileImageAlt")}
+                            width={42}
+                            height={42}
+                            unoptimized
+                            className="account-avatar profileAvatarImage"
+                          />
+                        ) : (
+                          <span className="account-avatar">{profileInitials}</span>
+                        )}
+                        <span className="avatarEditOverlay" aria-hidden="true">
+                          <Pencil size={11} />
+                        </span>
+                      </button>
+
+                      <div className={`nameFieldWrap ${isEditingName ? "isEditing" : ""}`}>
+                        {isEditingName ? (
+                          <input
+                            className="nameInput input-like-base"
+                            value={draftName}
+                            onChange={(event) => setDraftName(event.target.value)}
+                            onBlur={() => {
+                              setDraftName(savedName);
+                              setIsEditingName(false);
+                            }}
+                            autoFocus
+                            aria-label={t("details.userInformation.fields.name")}
+                          />
+                        ) : (
+                          <button
+                            type="button"
+                            className="nameField input-like-base"
+                            onClick={() => {
+                              setDraftName(savedName);
+                              setIsEditingName(true);
+                            }}
+                          >
+                            <span>{visibleName}</span>
+                          </button>
+                        )}
+
+                        <span className="nameEditOverlay" aria-hidden="true">
+                          <Pencil size={12} />
+                        </span>
+                      </div>
+
+                      <span className="saveNameSlot" aria-hidden={!hasNameChanges}>
+                        {hasNameChanges ? (
+                          <button
+                            type="button"
+                            className="btn-base btn-card saveNameButton buttonWithIcon"
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={handleNameSave}
+                          >
+                            {t("details.userInformation.save")}
+                            <Save size={14} aria-hidden="true" />
+                          </button>
+                        ) : null}
+                      </span>
+                    </div>
+
+                    <p className="helperText content-sm">{t("cards.userData.imageHint")}</p>
+                    <input
+                      ref={profileImageInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png"
+                      onChange={handleProfileImageChange}
+                      className="hiddenFileInput"
+                      aria-hidden="true"
+                      tabIndex={-1}
+                    />
+
+                    <div className="divider-bottom userDivider" aria-hidden="true" />
+
+                    <SectionLink href="/settings/user-information" label={t("cards.userData.userInfo")} />
+                  </div>
+                </article>
+
+                <article className="userDataCard userDataCard--placeholder" aria-hidden="true" />
               </div>
             </CardPanelBody>
           </CardPanel>
@@ -462,20 +673,15 @@ export function Settings() {
       <style jsx global>{`
         .layoutGrid {
           display: grid;
-          grid-template-columns: 1.95fr 1fr;
+          grid-template-columns: 1fr;
           gap: 1rem;
         }
 
-        .panelWide {
-          min-height: 178px;
-        }
-
-        .panelNarrow {
+        .panelMiddle {
           min-height: 178px;
         }
 
         .panelFull {
-          grid-column: 1 / -1;
           min-height: 238px;
         }
 
@@ -534,6 +740,10 @@ export function Settings() {
           width: 42px;
           height: 42px;
           font-size: 0.9rem;
+        }
+
+        .profileAvatarImage {
+          object-fit: cover;
         }
 
         .avatarEditOverlay {
@@ -632,11 +842,65 @@ export function Settings() {
           cursor: pointer;
         }
 
-        .actionsGrid {
-          margin-top: 0.72rem;
+        .actionsLayout {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.65rem;
+          flex-wrap: wrap;
+        }
+
+        .actionsPrimaryRow {
+          display: flex;
+          align-items: center;
+          gap: 0.55rem;
+          min-width: 0;
+          flex-wrap: wrap;
+        }
+
+        .actionsPrimaryRow > .btn-base,
+        .actionsPrimaryRow > a.btn-base {
+          justify-content: center;
+        }
+
+        .actionIconRow {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.55rem;
+          flex-wrap: wrap;
+        }
+
+        .userDataGrid {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 0.55rem;
+          gap: 0.8rem;
+          min-height: 186px;
+        }
+
+        .userDataCard {
+          border: 1px solid color-mix(in srgb, var(--glass-border) 66%, transparent);
+          border-radius: var(--radius-md);
+          background:
+            linear-gradient(
+              160deg,
+              color-mix(in srgb, var(--background) 87%, transparent),
+              color-mix(in srgb, var(--glass-bg) 64%, transparent)
+            );
+          min-height: 172px;
+          padding: var(--card-body-padding);
+        }
+
+        .userDataCard--placeholder {
+          border-style: dashed;
+          background: color-mix(in srgb, var(--background) 15%, transparent);
+        }
+
+        .hiddenFileInput {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          opacity: 0;
+          pointer-events: none;
         }
 
         .connectionGrid {
@@ -793,12 +1057,16 @@ export function Settings() {
         }
 
         @media (max-width: 1024px) {
-          .layoutGrid {
+          .connectionGrid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .userDataGrid {
             grid-template-columns: 1fr;
           }
 
-          .connectionGrid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+          .userDataCard--placeholder {
+            display: none;
           }
 
           .connectionModal {
@@ -817,8 +1085,21 @@ export function Settings() {
             justify-content: flex-start;
           }
 
-          .actionsGrid {
-            grid-template-columns: 1fr;
+          .actionsLayout,
+          .actionsPrimaryRow {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .actionsPrimaryRow > .btn-base,
+          .actionsPrimaryRow > a.btn-base {
+            width: 100%;
+            justify-content: center;
+          }
+
+          .actionIconRow {
+            width: 100%;
+            justify-content: center;
           }
 
           .connectionGrid {

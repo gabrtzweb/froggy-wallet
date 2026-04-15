@@ -78,12 +78,17 @@
       "userData": {
         "title": "Dados do usuário",
         "imageHint": "JPG, PNG até 2MB",
+        "profileImageAlt": "Imagem de perfil",
+        "profileImageInvalidType": "Somente arquivos JPG e PNG são permitidos.",
+        "profileImageTooLarge": "A imagem deve ter até 2MB.",
         "userInfo": "Informações do usuário"
       },
       "dataActions": {
         "title": "Ações de dados",
         "subtitle": "Gerencie backup e ações dos dados da conta.",
-        "view": "Ver dados",
+        "viewUserData": "Ver dados do usuário",
+        "viewApiData": "Ver dados da API",
+        "iconActionsGroupAriaLabel": "Atalhos de ações de dados",
         "remove": "Remover dados",
         "export": "Exportar",
         "import": "Importar"
@@ -163,6 +168,19 @@
         "sections": {
           "contact": "Contato",
           "address": "Endereço"
+        }
+      },
+      "userData": {
+        "title": "Dados do usuário",
+        "informationTitle": "Informações dos dados do usuário",
+        "byokHint": "As credenciais BYOK aparecerão aqui após a configuração local.",
+        "fields": {
+          "profileName": "Nome do perfil"
+        },
+        "sections": {
+          "localData": "Dados locais",
+          "byok": "Credenciais BYOK",
+          "savedJson": "JSON local salvo"
         }
       }
     }

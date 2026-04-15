@@ -58,7 +58,7 @@ type OverviewResponse = {
   totalAssets: number;
 };
 
-function getItemIds(): OverviewItemId[] {
+async function getItemIds(): Promise<OverviewItemId[]> {
   return getConfiguredItemIds();
 }
 
@@ -369,19 +369,18 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const locale = searchParams.get("locale") ?? "pt-BR";
-    const itemIds = getItemIds();
+    const itemIds = await getItemIds();
 
     if (!itemIds.length) {
       return Response.json(
         {
-          error:
-            "No Pluggy dashboard item IDs were configured. Add PLUGGY_DASHBOARD_ITEM_IDS to .env.local.",
+          error: "No Pluggy item IDs were configured. Add a BYOK connection in Settings.",
         },
         { status: 400 },
       );
     }
 
-    const pluggy = getPluggyClient();
+    const pluggy = await getPluggyClient();
     const dateTo = new Date();
     const dateFrom = new Date(dateTo);
     dateFrom.setUTCMonth(dateFrom.getUTCMonth() - 11);

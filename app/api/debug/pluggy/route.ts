@@ -8,20 +8,19 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const requestedItemId = searchParams.get("itemId")?.trim();
-    const configuredItemIds = getConfiguredItemIds();
+    const configuredItemIds = await getConfiguredItemIds();
     const itemIds = requestedItemId ? [requestedItemId] : configuredItemIds;
 
     if (!itemIds.length) {
       return Response.json(
         {
-          error:
-            "No Pluggy dashboard item IDs were configured. Add PLUGGY_DASHBOARD_ITEM_IDS to .env.local.",
+          error: "No Pluggy item IDs were configured. Add a BYOK connection in Settings.",
         },
         { status: 400 },
       );
     }
 
-    const pluggy = getPluggyClient();
+    const pluggy = await getPluggyClient();
 
     const items = await Promise.all(
       itemIds.map(async (itemId) => {

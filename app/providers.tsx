@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { SWRConfig } from "swr";
 import { PageLoadingProvider } from "@/app/lib/page-loading";
+import { syncByokCookieFromStorage } from "@/app/lib/local-data";
 
 const defaultSWRConfig = {
   revalidateOnFocus: true,
@@ -14,6 +16,10 @@ const defaultSWRConfig = {
 };
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    syncByokCookieFromStorage();
+  }, []);
+
   return (
     <SWRConfig value={defaultSWRConfig}>
       <PageLoadingProvider>{children}</PageLoadingProvider>

@@ -6,7 +6,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { createProfileInitials, getProfileFirstName, useProfileName } from "@/app/lib/profile-client";
+import {
+  createProfileInitials,
+  getProfileFirstName,
+  useProfileImageDataUrl,
+  useProfileName,
+} from "@/app/lib/profile-client";
 
 type Theme = "light" | "dark";
 type Locale = "en" | "pt-BR";
@@ -36,6 +41,7 @@ export function Header() {
   const fallbackProfileName = t("account.name");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const profileName = useProfileName(fallbackProfileName);
+  const profileImageDataUrl = useProfileImageDataUrl();
   const displayName = getProfileFirstName(profileName);
 
   useEffect(() => {
@@ -124,7 +130,19 @@ export function Header() {
           </button>
           <Link href="/settings" className="account" aria-label={t("actions.account")}>
             <span className="avatar" aria-hidden="true">
-              {createProfileInitials(profileName)}
+              {profileImageDataUrl ? (
+                <Image
+                  src={profileImageDataUrl}
+                  alt=""
+                  width={30}
+                  height={30}
+                  unoptimized
+                  className="avatarImage"
+                  aria-hidden="true"
+                />
+              ) : (
+                createProfileInitials(profileName)
+              )}
             </span>
             <span className="accountText">
               <span className="hello">{t("account.hello")} </span>

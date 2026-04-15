@@ -13,7 +13,7 @@ export function DashboardUnavailableCard() {
         <section className="dashboardUnavailableCard" aria-live="polite" role="status">
           <h2>{t("title")}</h2>
           <p>{t("description")}</p>
-          <Link href="/settings" className="dashboardUnavailableButton">
+          <Link href="/settings" className="btn-base btn-primary buttonWithIcon"> 
             {t("action")}
             <ArrowRight size={16} aria-hidden="true" />
           </Link>

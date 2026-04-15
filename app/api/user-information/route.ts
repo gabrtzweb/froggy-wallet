@@ -109,19 +109,18 @@ function formatBirthDate(value: string | Date | null | undefined) {
 
 export async function GET() {
   try {
-    const itemIds = getConfiguredItemIds();
+    const itemIds = await getConfiguredItemIds();
 
     if (!itemIds.length) {
       return Response.json(
         {
-          error:
-            "No Pluggy dashboard item IDs were configured. Add PLUGGY_DASHBOARD_ITEM_IDS to .env.local.",
+          error: "No Pluggy item IDs were configured. Add a BYOK connection in Settings.",
         },
         { status: 400 },
       );
     }
 
-    const pluggy = getPluggyClient();
+    const pluggy = await getPluggyClient();
     const dataByItem = await Promise.all(
       itemIds.map(async (itemId) => {
         const [accountsResponse, identity] = await Promise.all([

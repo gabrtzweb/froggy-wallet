@@ -43,7 +43,7 @@ export default async function SlugPage({ params }: Props) {
 
   const typedSlug = slug as Slug;
   const shouldGuardWithPluggy = pluggyGuardedRoutes.has(typedSlug);
-  const isPluggyAvailable = shouldGuardWithPluggy ? hasPluggyCredentials() : true;
+  const isPluggyAvailable = shouldGuardWithPluggy ? await hasPluggyCredentials() : true;
 
   return <Route isPluggyAvailable={isPluggyAvailable} />;
 }

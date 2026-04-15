@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarDays, IdCard, Mail, MapPin, Phone, UserCircle2 } from "lucide-react";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import {
@@ -10,7 +11,7 @@ import {
   CardPanelKicker,
 } from "@/app/components/ui/card-panel";
 import { DetailPageHeader } from "@/app/components/ui/detail-page-header";
-import { createProfileInitials, useProfileName } from "@/app/lib/profile-client";
+import { createProfileInitials, useProfileImageDataUrl, useProfileName } from "@/app/lib/profile-client";
 import { useCachedApi } from "@/app/lib/use-cached-api";
 
 type UserInformationResponse = {
@@ -85,6 +86,7 @@ export function SettingsUserInformationDetails() {
   const apiPhone = data?.phone?.trim() ?? "";
   const apiAddress = data?.address?.trim() ?? "";
   const displayName = useProfileName(fallbackName);
+  const profileImageDataUrl = useProfileImageDataUrl();
   const fullName = apiFullName || placeholder;
   const documentId = apiDocumentId || placeholder;
   const birthDate = formatBirthDateForDisplay(apiBirthDate, placeholder);
@@ -101,7 +103,23 @@ export function SettingsUserInformationDetails() {
           kicker={t("details.userInformation.title")}
           title={displayName}
           subtitle={null}
-          logo={<span className="profileLogo" aria-hidden="true">{createProfileInitials(displayName)}</span>}
+          logo={(
+            <span className="profileLogo" aria-hidden="true">
+              {profileImageDataUrl ? (
+                <Image
+                  src={profileImageDataUrl}
+                  alt=""
+                  width={56}
+                  height={56}
+                  unoptimized
+                  className="profileLogoImage"
+                  aria-hidden="true"
+                />
+              ) : (
+                createProfileInitials(displayName)
+              )}
+            </span>
+          )}
         />
 
         <CardPanel className="detailSummaryCard">
@@ -166,6 +184,13 @@ export function SettingsUserInformationDetails() {
           color: var(--btn-text);
           background: linear-gradient(140deg, var(--primary), var(--accent));
           box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+          overflow: hidden;
+        }
+
+        .profileLogoImage {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
 
         .detailSummaryCard {
