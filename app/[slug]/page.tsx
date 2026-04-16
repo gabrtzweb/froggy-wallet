@@ -6,11 +6,15 @@ import { Flow } from "@/app/pages/flow";
 import { Overview } from "@/app/pages/overview";
 import { Planning } from "@/app/pages/planning";
 import { Settings } from "@/app/pages/settings";
+import { SettingsApiDataDetails } from "@/app/pages/settings/api-data";
+import { SettingsConnectionDetails } from "@/app/pages/settings/connection-details";
+import { SettingsUserDataDetails } from "@/app/pages/settings/user-data";
+import { SettingsUserInformationDetails } from "@/app/pages/settings/user-information";
 
 type Slug = "overview" | "flow" | "resources" | "planning" | "settings";
 
 type Props = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string | string[] }>;
 };
 
 type RouteProps = {
@@ -35,6 +39,30 @@ export const dynamicParams = false;
 
 export default async function SlugPage({ params }: Props) {
   const { slug } = await params;
+
+  // Handle nested settings routes (e.g., /settings/user-data, /settings/connections/123)
+  if (Array.isArray(slug)) {
+    if (slug.length === 2 && slug[0] === "settings" && slug[1] === "user-data") {
+      return <SettingsUserDataDetails />;
+    }
+
+    if (slug.length === 2 && slug[0] === "settings" && slug[1] === "api-data") {
+      return <SettingsApiDataDetails />;
+    }
+
+    if (slug.length === 2 && slug[0] === "settings" && slug[1] === "user-information") {
+      return <SettingsUserInformationDetails />;
+    }
+
+    if (slug.length === 3 && slug[0] === "settings" && slug[1] === "connections") {
+      const itemId = slug[2];
+      return <SettingsConnectionDetails itemId={itemId} />;
+    }
+
+    notFound();
+  }
+
+  // Handle single-level routes
   const Route = routes[slug as Slug];
 
   if (!Route) {
