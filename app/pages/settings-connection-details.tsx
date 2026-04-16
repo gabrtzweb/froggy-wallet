@@ -14,7 +14,7 @@ import {
 import { resolveInstitutionIdentity } from "@/app/lib/institution-utils";
 import { useCachedApi } from "@/app/lib/use-cached-api";
 
-type DebugPluggyAccount = {
+type ConnectionAccount = {
   id?: string;
   name?: string;
   marketingName?: string | null;
@@ -35,7 +35,7 @@ type DebugPluggyAccount = {
   } | null;
 };
 
-type DebugPluggyInvestment = {
+type ConnectionInvestment = {
   id?: string;
   name?: string;
   balance?: number;
@@ -44,7 +44,7 @@ type DebugPluggyInvestment = {
   status?: string | null;
 };
 
-type DebugPluggyItem = {
+type ConnectionItem = {
   itemId: string;
   item?: {
     updatedAt?: string | null;
@@ -55,12 +55,12 @@ type DebugPluggyItem = {
       institutionUrl?: string | null;
     };
   };
-  accounts: DebugPluggyAccount[];
-  investments: DebugPluggyInvestment[];
+  accounts: ConnectionAccount[];
+  investments: ConnectionInvestment[];
 };
 
-type DebugPluggyResponse = {
-  items?: DebugPluggyItem[];
+type ConnectionResponse = {
+  items?: ConnectionItem[];
   error?: string;
 };
 
@@ -104,8 +104,8 @@ function formatMoney(value: number, formatter: Intl.NumberFormat, currencyCode: 
 export function SettingsConnectionDetails({ itemId }: { itemId: string }) {
   const t = useTranslations("settings");
   const locale = useLocale();
-  const { data, errorMessage, isInitialLoading } = useCachedApi<DebugPluggyResponse>(
-    `/api/debug/pluggy?itemId=${encodeURIComponent(itemId)}`,
+  const { data, errorMessage, isInitialLoading } = useCachedApi<ConnectionResponse>(
+    `/api?endpoint=connections&itemId=${encodeURIComponent(itemId)}`,
   );
 
   const connection = data?.items?.[0];

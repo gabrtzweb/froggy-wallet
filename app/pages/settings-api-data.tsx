@@ -12,7 +12,7 @@ import {
 import { DetailPageHeader } from "@/app/components/ui/detail-page-header";
 import { useCachedApi } from "@/app/lib/use-cached-api";
 
-type ApiDebugResponse = {
+type ApiConnectionsResponse = {
   [key: string]: unknown;
 };
 
@@ -21,7 +21,7 @@ export function SettingsApiDataDetails() {
   const locale = useLocale();
   const [isCopied, setIsCopied] = useState(false);
   const copyLabel = locale === "pt-BR" ? "Copiar JSON" : "Copy JSON";
-  const { data, errorMessage, isInitialLoading } = useCachedApi<ApiDebugResponse>("/api/debug/pluggy", {
+  const { data, errorMessage, isInitialLoading } = useCachedApi<ApiConnectionsResponse>("/api?endpoint=connections", {
     keepPreviousData: false,
   });
 
@@ -76,8 +76,8 @@ export function SettingsApiDataDetails() {
             <div className="copyJsonRow">
               <p className="copyJsonHelp">
                 {locale === "pt-BR"
-                  ? "Resumo bruto retornado pela API de debug do Pluggy para inspecao rapida."
-                  : "Raw payload returned by the Pluggy debug API for quick inspection."}
+                  ? "Resumo bruto retornado pela API de conexoes para inspecao rapida."
+                  : "Raw payload returned by the connections API for quick inspection."}
               </p>
               <button type="button" className="btn-base btn-card buttonWithIcon copyJsonButton" onClick={handleCopyJson}>
                 {isCopied ? (locale === "pt-BR" ? "Copiado!" : "Copied!") : copyLabel}

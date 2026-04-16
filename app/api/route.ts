@@ -4,8 +4,6 @@ import {
   normalizeErrorMessage,
 } from "@/app/lib/server/pluggy";
 
-type OverviewItemId = string;
-
 type OverviewAccount = {
   id: string;
   name: string;
@@ -58,8 +56,107 @@ type OverviewResponse = {
   totalAssets: number;
 };
 
-async function getItemIds(): Promise<OverviewItemId[]> {
-  return getConfiguredItemIds();
+type UserInformationResponse = {
+  fullName: string | null;
+  documentId: string | null;
+  birthDate: string | null;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+};
+
+type AccountIdentityFields = {
+  owner?: string | null;
+  taxNumber?: string | null;
+};
+
+type PluggyIdentityField = {
+  value?: string | null;
+};
+
+type PluggyIdentityAddress = {
+  fullAddress?: string | null;
+  primaryAddress?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+};
+
+type PluggyIdentity = {
+  fullName?: string | null;
+  taxNumber?: string | null;
+  document?: string | null;
+  birthDate?: string | Date | null;
+  emails?: PluggyIdentityField[] | null;
+  phoneNumbers?: PluggyIdentityField[] | null;
+  addresses?: PluggyIdentityAddress[] | null;
+};
+
+function normalizeOptionalString(value: unknown) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmedValue = value.trim();
+  return trimmedValue ? trimmedValue : null;
+}
+
+function getFirstIdentityValue(values: PluggyIdentityField[] | null | undefined) {
+  if (!values?.length) {
+    return null;
+  }
+
+  for (const value of values) {
+    const normalizedValue = normalizeOptionalString(value?.value);
+    if (normalizedValue) {
+      return normalizedValue;
+    }
+  }
+
+  return null;
+}
+
+function getAddressValue(addresses: PluggyIdentityAddress[] | null | undefined) {
+  if (!addresses?.length) {
+    return null;
+  }
+
+  for (const address of addresses) {
+    const fullAddress = normalizeOptionalString(address.fullAddress);
+    if (fullAddress) {
+      return fullAddress;
+    }
+
+    const composedAddress = [
+      normalizeOptionalString(address.primaryAddress),
+      normalizeOptionalString(address.city),
+      normalizeOptionalString(address.state),
+      normalizeOptionalString(address.postalCode),
+      normalizeOptionalString(address.country),
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    if (composedAddress) {
+      return composedAddress;
+    }
+  }
+
+  return null;
+}
+
+function formatBirthDate(value: string | Date | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  return parsedDate.toISOString().slice(0, 10);
 }
 
 function getCurrencyCode(values: Array<{ currencyCode?: string | null }>) {
@@ -200,12 +297,15 @@ function getBankIdentity(rawName: string) {
   };
 }
 
-function getInstitutionIdentityFromItem(item: {
-  connector?: {
-    name?: string | null;
-    institutionUrl?: string | null;
-  };
-}, accounts: Array<Record<string, unknown>>) {
+function getInstitutionIdentityFromItem(
+  item: {
+    connector?: {
+      name?: string | null;
+      institutionUrl?: string | null;
+    };
+  },
+  accounts: Array<Record<string, unknown>>,
+) {
   const bankCodeCandidates = accounts
     .map((account) => {
       const bankData = account.bankData as { transferNumber?: string | null } | null | undefined;
@@ -365,11 +465,10 @@ function buildMonthlyHistory(
   });
 }
 
-export async function GET(req: Request) {
+async function handleOverview(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const locale = searchParams.get("locale") ?? "pt-BR";
-    const itemIds = await getItemIds();
+    const itemIds = await getConfiguredItemIds();
 
     if (!itemIds.length) {
       return Response.json(
@@ -380,6 +479,7 @@ export async function GET(req: Request) {
       );
     }
 
+    const locale = searchParams.get("locale") ?? "pt-BR";
     const pluggy = await getPluggyClient();
     const dateTo = new Date();
     const dateFrom = new Date(dateTo);
@@ -395,7 +495,10 @@ export async function GET(req: Request) {
           pluggy.fetchInvestments(itemId, undefined, { pageSize: 500 }),
         ]);
 
-        const institutionIdentity = getInstitutionIdentityFromItem(item, accountsResponse.results as Array<Record<string, unknown>>);
+        const institutionIdentity = getInstitutionIdentityFromItem(
+          item,
+          accountsResponse.results as Array<Record<string, unknown>>,
+        );
         const institutionName = institutionIdentity.name || item.connector.name;
         const institutionDomain = institutionIdentity.domain || getInstitutionDomain(item.connector.institutionUrl);
         const institutionLogoUrl = item.connector.imageUrl;
@@ -583,4 +686,196 @@ export async function GET(req: Request) {
     const message = normalizeErrorMessage(error, "Failed to load overview data");
     return Response.json({ error: message }, { status: 500 });
   }
+}
+
+async function handleAccounts(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const itemId = searchParams.get("itemId");
+
+    if (!itemId) {
+      return Response.json({ error: "itemId query parameter is required" }, { status: 400 });
+    }
+
+    const pluggy = await getPluggyClient();
+    const response = await pluggy.fetchAccounts(itemId);
+
+    return Response.json(response);
+  } catch (error) {
+    const message = normalizeErrorMessage(error, "Failed to fetch accounts");
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
+async function handleTransactions(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const accountId = searchParams.get("accountId");
+
+    if (!accountId) {
+      return Response.json({ error: "accountId query parameter is required" }, { status: 400 });
+    }
+
+    const pluggy = await getPluggyClient();
+    const response = await pluggy.fetchTransactions(accountId);
+
+    return Response.json(response);
+  } catch (error) {
+    const message = normalizeErrorMessage(error, "Failed to fetch transactions");
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
+async function handleConnections(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const requestedItemId = searchParams.get("itemId")?.trim();
+    const configuredItemIds = await getConfiguredItemIds();
+    const itemIds = requestedItemId ? [requestedItemId] : configuredItemIds;
+
+    if (!itemIds.length) {
+      return Response.json(
+        {
+          error: "No Pluggy item IDs were configured. Add a BYOK connection in Settings.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const pluggy = await getPluggyClient();
+
+    const items = await Promise.all(
+      itemIds.map(async (itemId) => {
+        const [item, accountsResponse, investmentsResponse, identity] = await Promise.all([
+          pluggy.fetchItem(itemId),
+          pluggy.fetchAccounts(itemId),
+          pluggy.fetchInvestments(itemId, undefined, { pageSize: 500 }),
+          pluggy.fetchIdentityByItemId(itemId).catch(() => null),
+        ]);
+
+        return {
+          itemId,
+          item,
+          accounts: accountsResponse.results,
+          investments: investmentsResponse.results,
+          identity,
+        };
+      }),
+    );
+
+    return Response.json({
+      itemIds,
+      items,
+    });
+  } catch (error) {
+    const message = normalizeErrorMessage(error, "Failed to load connection data");
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
+async function handleUserInformation() {
+  try {
+    const itemIds = await getConfiguredItemIds();
+
+    if (!itemIds.length) {
+      return Response.json(
+        {
+          error: "No Pluggy item IDs were configured. Add a BYOK connection in Settings.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const pluggy = await getPluggyClient();
+    const dataByItem = await Promise.all(
+      itemIds.map(async (itemId) => {
+        const [accountsResponse, identity] = await Promise.all([
+          pluggy.fetchAccounts(itemId),
+          pluggy.fetchIdentityByItemId(itemId).catch(() => null),
+        ]);
+
+        return {
+          accounts: accountsResponse.results as AccountIdentityFields[],
+          identity: identity as PluggyIdentity | null,
+        };
+      }),
+    );
+
+    const accounts = dataByItem.flatMap((itemData) => itemData.accounts);
+    const identities = dataByItem.map((itemData) => itemData.identity).filter(Boolean);
+    let fullName: string | null = null;
+    let documentId: string | null = null;
+    let birthDate: string | null = null;
+    let email: string | null = null;
+    let phone: string | null = null;
+    let address: string | null = null;
+
+    for (const identity of identities) {
+      if (!identity) {
+        continue;
+      }
+
+      fullName = fullName ?? normalizeOptionalString(identity.fullName);
+      documentId =
+        documentId ?? normalizeOptionalString(identity.document) ?? normalizeOptionalString(identity.taxNumber);
+      birthDate = birthDate ?? formatBirthDate(identity.birthDate);
+      email = email ?? getFirstIdentityValue(identity.emails);
+      phone = phone ?? getFirstIdentityValue(identity.phoneNumbers);
+      address = address ?? getAddressValue(identity.addresses);
+    }
+
+    for (const account of accounts) {
+      fullName = fullName ?? normalizeOptionalString(account.owner);
+      documentId = documentId ?? normalizeOptionalString(account.taxNumber);
+
+      if (fullName && documentId && birthDate && email && phone && address) {
+        break;
+      }
+    }
+
+    const response: UserInformationResponse = {
+      fullName,
+      documentId,
+      birthDate,
+      email,
+      phone,
+      address,
+    };
+
+    return Response.json(response);
+  } catch (error) {
+    const message = normalizeErrorMessage(error, "Failed to load user information");
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
+async function handleEndpoint(req: Request, endpoint: string) {
+  if (endpoint === "overview") {
+    return handleOverview(req);
+  }
+
+  if (endpoint === "accounts") {
+    return handleAccounts(req);
+  }
+
+  if (endpoint === "transactions") {
+    return handleTransactions(req);
+  }
+
+  if (endpoint === "connections") {
+    return handleConnections(req);
+  }
+
+  if (endpoint === "user-information") {
+    return handleUserInformation();
+  }
+
+  return Response.json({ error: "Not Found" }, { status: 404 });
+}
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const endpoint = searchParams.get("endpoint") ?? "overview";
+
+  return handleEndpoint(req, endpoint);
 }

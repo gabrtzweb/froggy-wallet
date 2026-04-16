@@ -121,7 +121,7 @@ function OverviewContent() {
   const locale = useLocale();
   const t = useTranslations("overview");
   const { data, errorMessage, isInitialLoading } = useCachedApi<OverviewData>(
-    `/api/overview?locale=${encodeURIComponent(locale)}`,
+    `/api?endpoint=overview&locale=${encodeURIComponent(locale)}`,
   );
 
   const currencyCode = data?.currencyCode ?? "BRL";

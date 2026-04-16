@@ -6,9 +6,9 @@ Personal finance dashboard with Open Finance integration using Pluggy API.
 
 - Home page with a marketing-style dashboard preview and navigation into the app.
 - Overview page with bank accounts, credit cards, investments, and balance evolution.
-- Settings page with profile editing, connection summaries, and quick access to debug data.
+- Settings page with profile editing, connection summaries, and quick access to connection API data.
 - User information page that reads Pluggy data for profile details, including full name, document ID, birth date, e-mail, phone, and address when available.
-- Pluggy debug endpoint for inspecting configured items, accounts, investments, and identity payload.
+- Connections endpoint for inspecting configured items, accounts, investments, and identity payload.
 
 ## Setup
 
@@ -40,13 +40,17 @@ Open <http://localhost:3000>
 
 ## API Endpoints
 
-GET /api/accounts?itemId=YOUR_ITEM_ID
+GET /api?endpoint=accounts&itemId=YOUR_ITEM_ID
 
 Returns the list of accounts for a specific Pluggy item.
 
-GET /api/transactions?accountId=YOUR_ACCOUNT_ID
+GET /api?endpoint=transactions&accountId=YOUR_ACCOUNT_ID
 
 Returns the list of transactions for a specific account.
+
+GET /api?endpoint=connections
+
+Returns configured connection snapshots (item, accounts, investments, and identity).
 
 These endpoints are designed for the personal-project flow where item IDs are created once in Pluggy Dashboard and stored in .env.local.
 These endpoints use the BYOK credentials and item IDs saved through Settings.
@@ -54,7 +58,7 @@ These endpoints use the BYOK credentials and item IDs saved through Settings.
 ## Security Notes
 
 - The API routes under /api are public HTTP endpoints. Do not expose this app to untrusted users without adding authentication or another access control layer.
-- The user information and debug Pluggy endpoints can return personal data from the connected item, so treat their responses as sensitive.
+- The user information and connections endpoints can return personal data from the connected item, so treat their responses as sensitive.
 - Do not move Pluggy credentials to any NEXT_PUBLIC_ variable.
 - If you add more sensitive runtime files later, extend .gitignore instead of committing them.
 
@@ -67,7 +71,7 @@ Use SWR for all client-side API data in current and future pages (overview, sett
 Rules:
 
 - Use `useCachedApi` from `app/lib/use-cached-api.ts` for API requests.
-- Use stable endpoint keys (example: `/api/overview?locale=...`).
+- Use stable endpoint keys (example: `/api?endpoint=overview&locale=...`).
 - Show loading UI only when `isInitialLoading` is true.
 - Keep showing cached data while SWR revalidates in the background.
 - Surface `errorMessage` but avoid clearing existing UI when cached data exists.

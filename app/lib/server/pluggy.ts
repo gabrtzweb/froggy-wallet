@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { headers } from "next/headers";
 import { PluggyClient } from "pluggy-sdk";
 
 import { BYOK_COOKIE_NAME } from "@/app/lib/local-data";
@@ -9,6 +10,54 @@ type PluggyCredentials = {
   clientSecret: string;
   itemIds: string[];
 };
+
+type RawByokPayload = {
+  clientId?: unknown;
+  clientSecret?: unknown;
+  itemIds?: unknown;
+};
+
+function parseItemIds(itemIds: unknown) {
+  if (typeof itemIds === "string") {
+    return [...new Set(itemIds.split(/[\n,]/).map((itemId) => itemId.trim()).filter(Boolean))];
+  }
+
+  if (Array.isArray(itemIds)) {
+    return [...new Set(itemIds.map((itemId) => (typeof itemId === "string" ? itemId.trim() : "")).filter(Boolean))];
+  }
+
+  return [];
+}
+
+function parseByokPayload(rawValue: string): PluggyCredentials | null {
+  try {
+    const directParsed = JSON.parse(rawValue) as RawByokPayload;
+    const clientId = typeof directParsed.clientId === "string" ? directParsed.clientId.trim() : "";
+    const clientSecret = typeof directParsed.clientSecret === "string" ? directParsed.clientSecret.trim() : "";
+    const itemIds = parseItemIds(directParsed.itemIds);
+
+    if (!clientId || !clientSecret) {
+      return null;
+    }
+
+    return { clientId, clientSecret, itemIds };
+  } catch {
+    try {
+      const decodedParsed = JSON.parse(decodeURIComponent(rawValue)) as RawByokPayload;
+      const clientId = typeof decodedParsed.clientId === "string" ? decodedParsed.clientId.trim() : "";
+      const clientSecret = typeof decodedParsed.clientSecret === "string" ? decodedParsed.clientSecret.trim() : "";
+      const itemIds = parseItemIds(decodedParsed.itemIds);
+
+      if (!clientId || !clientSecret) {
+        return null;
+      }
+
+      return { clientId, clientSecret, itemIds };
+    } catch {
+      return null;
+    }
+  }
+}
 
 async function readCookieValue(name: string) {
   try {
@@ -25,27 +74,18 @@ async function readCredentialsFromCookie(): Promise<PluggyCredentials | null> {
     return null;
   }
 
+  return parseByokPayload(rawValue);
+}
+
+async function readCredentialsFromHeader(): Promise<PluggyCredentials | null> {
   try {
-    const parsed = JSON.parse(decodeURIComponent(rawValue)) as {
-      clientId?: unknown;
-      clientSecret?: unknown;
-      itemIds?: unknown;
-    };
-
-    const clientId = typeof parsed.clientId === "string" ? parsed.clientId.trim() : "";
-    const clientSecret = typeof parsed.clientSecret === "string" ? parsed.clientSecret.trim() : "";
-    const itemIdsValue = typeof parsed.itemIds === "string" ? parsed.itemIds : "";
-    const itemIds = [...new Set(itemIdsValue.split(/[\n,]/).map((itemId) => itemId.trim()).filter(Boolean))];
-
-    if (!clientId || !clientSecret) {
+    const headerStore = await headers();
+    const rawValue = headerStore.get("x-froggy-byok");
+    if (!rawValue) {
       return null;
     }
 
-    return {
-      clientId,
-      clientSecret,
-      itemIds,
-    };
+    return parseByokPayload(rawValue);
   } catch {
     return null;
   }
@@ -54,12 +94,14 @@ async function readCredentialsFromCookie(): Promise<PluggyCredentials | null> {
 async function getCredentials(): Promise<PluggyCredentials> {
   const envClientId = process.env.PLUGGY_CLIENT_ID ?? process.env.CLIENT_ID ?? "";
   const envClientSecret = process.env.PLUGGY_CLIENT_SECRET ?? process.env.CLIENT_SECRET ?? "";
+  const headerCredentials = await readCredentialsFromHeader();
   const cookieCredentials = await readCredentialsFromCookie();
+  const runtimeCredentials = headerCredentials ?? cookieCredentials;
 
   return {
-    clientId: envClientId || cookieCredentials?.clientId || "",
-    clientSecret: envClientSecret || cookieCredentials?.clientSecret || "",
-    itemIds: cookieCredentials?.itemIds ?? [],
+    clientId: runtimeCredentials?.clientId || envClientId,
+    clientSecret: runtimeCredentials?.clientSecret || envClientSecret,
+    itemIds: runtimeCredentials?.itemIds ?? [],
   };
 }
 

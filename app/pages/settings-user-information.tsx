@@ -78,7 +78,7 @@ export function SettingsUserInformationDetails() {
   const locale = useLocale();
   const placeholder = t("details.userInformation.placeholder");
   const fallbackName = t("details.userInformation.fallbackName");
-  const { data } = useCachedApi<UserInformationResponse>("/api/user-information");
+  const { data } = useCachedApi<UserInformationResponse>("/api?endpoint=user-information");
   const apiFullName = data?.fullName?.trim() ?? "";
   const apiDocumentId = data?.documentId?.trim() ?? "";
   const apiBirthDate = data?.birthDate?.trim() ?? "";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Karla, Rubik } from "next/font/google";
 import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -8,23 +8,22 @@ import { Footer } from "./components/footer";
 import { AppProviders } from "./providers";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const karla = Karla({
+  variable: "--font-karla",
+  weight: ["400", "600"],
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const rubik = Rubik({
+  variable: "--font-rubik",
+  weight: ["500", "700"],
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: "Froggy Wallet",
   description:
-    "Connect your bank accounts and manage your finances with Froggy Wallet. Secure open banking integration with real-time account insights.",
-  icons: {
-    icon: "/assets/favicon.png",
-  },
+    "Connect your bank accounts and manage your finances with Froggy Wallet. Secure open banking integration with real-time account insights."
 };
 
 export default async function RootLayout({
@@ -47,7 +46,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${karla.variable} ${rubik.variable}`}
       suppressHydrationWarning
     >
       <body suppressHydrationWarning>

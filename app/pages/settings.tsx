@@ -147,7 +147,7 @@ export function Settings() {
   const { mutate } = useSWRConfig();
   const fallbackName = t("details.userInformation.fallbackName");
   const { data, errorMessage, isInitialLoading } = useCachedApi<RawPluggyResponse>(
-    "/api/debug/pluggy",
+    "/api?endpoint=connections",
     { keepPreviousData: false },
   );
   const savedName = useProfileName(fallbackName);
@@ -280,8 +280,8 @@ export function Settings() {
 
   async function refreshPluggyViews() {
     await Promise.all([
-      mutate("/api/debug/pluggy"),
-      mutate((key) => typeof key === "string" && key.startsWith("/api/overview?")),
+      mutate("/api?endpoint=connections"),
+      mutate((key) => typeof key === "string" && key.startsWith("/api?endpoint=overview")),
     ]);
   }
 
