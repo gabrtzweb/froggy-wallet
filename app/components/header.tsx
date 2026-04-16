@@ -79,7 +79,7 @@ export function Header() {
       <div className="inner app-page-main">
         <Link href="/" className="brand" aria-label={t("aria.dashboard")}>
           <span className="logo" aria-hidden="true">
-            <Image src="/assets/froggy-logo.png" alt="" width={32} height={32} className="froggyLogo" aria-hidden="true" />
+            <Image src="/assets/logo.png" alt="" width={32} height={32} className="froggyLogo" aria-hidden="true" />
           </span>
           <span className="title">{t("brand")}</span>
         </Link>

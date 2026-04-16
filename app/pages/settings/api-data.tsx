@@ -89,7 +89,7 @@ export function SettingsApiDataDetails() {
         </CardPanel>
       </main>
 
-      <style jsx global>{`
+      <style>{`
         .userDataPage {
           gap: 1rem;
         }

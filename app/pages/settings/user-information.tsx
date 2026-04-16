@@ -166,7 +166,7 @@ export function SettingsUserInformationDetails() {
         </CardPanel>
       </main>
 
-      <style jsx global>{`
+      <style>{`
         .detailPage {
           gap: 1rem;
         }

@@ -83,3 +83,4 @@ Global defaults are configured once in `app/providers.tsx` through `SWRConfig`.
 - Flow page: add transaction analytics, recent activity, and cash flow summaries.
 - Assets page: add holdings, categories, and asset breakdowns.
 - Planning page: add goals, budgets, and forward-looking financial planning.
+- Multiple accounts: add suport for more than one user.

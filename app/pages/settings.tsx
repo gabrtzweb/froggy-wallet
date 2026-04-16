@@ -874,7 +874,6 @@ export function Settings() {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 0.8rem;
-          min-height: 186px;
         }
 
         .userDataCard {
@@ -886,7 +885,6 @@ export function Settings() {
               color-mix(in srgb, var(--background) 87%, transparent),
               color-mix(in srgb, var(--glass-bg) 64%, transparent)
             );
-          min-height: 172px;
           padding: var(--card-body-padding);
         }
 

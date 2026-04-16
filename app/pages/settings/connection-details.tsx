@@ -273,7 +273,7 @@ export function SettingsConnectionDetails({ itemId }: { itemId: string }) {
         </section>
       </main>
 
-      <style jsx global>{`
+      <style>{`
         .detailPage {
           gap: 1rem;
         }
@@ -284,7 +284,7 @@ export function SettingsConnectionDetails({ itemId }: { itemId: string }) {
           gap: 0.9rem;
         }
 
-        .detailHero :global(.institutionLogo) {
+        .detailHero .institutionLogo {
           width: 56px;
           height: 56px;
           border-radius: 18px;

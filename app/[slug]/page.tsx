@@ -12,9 +12,11 @@ import { SettingsUserDataDetails } from "@/app/pages/settings/user-data";
 import { SettingsUserInformationDetails } from "@/app/pages/settings/user-information";
 
 type Slug = "overview" | "flow" | "resources" | "planning" | "settings";
+type RewrittenSlug = "settings-user-data" | "settings-api-data" | "settings-user-information" | "settings-connections";
 
 type Props = {
-  params: Promise<{ slug: string | string[] }>;
+  params: Promise<{ slug: Slug | RewrittenSlug }>;
+  searchParams: Promise<{ itemId?: string | string[] }>;
 };
 
 type RouteProps = {
@@ -32,37 +34,47 @@ const routes: Record<Slug, ComponentType<RouteProps>> = {
 const pluggyGuardedRoutes = new Set<Slug>(["overview", "flow", "resources", "planning"]);
 
 export function generateStaticParams() {
-  return Object.keys(routes).map((slug) => ({ slug }));
+  return [
+    { slug: "overview" },
+    { slug: "flow" },
+    { slug: "resources" },
+    { slug: "planning" },
+    { slug: "settings" },
+    { slug: "settings-user-data" },
+    { slug: "settings-api-data" },
+    { slug: "settings-user-information" },
+    { slug: "settings-connections" },
+  ];
 }
 
 export const dynamicParams = false;
 
-export default async function SlugPage({ params }: Props) {
+export default async function SlugPage({ params, searchParams }: Props) {
   const { slug } = await params;
 
-  // Handle nested settings routes (e.g., /settings/user-data, /settings/connections/123)
-  if (Array.isArray(slug)) {
-    if (slug.length === 2 && slug[0] === "settings" && slug[1] === "user-data") {
-      return <SettingsUserDataDetails />;
-    }
-
-    if (slug.length === 2 && slug[0] === "settings" && slug[1] === "api-data") {
-      return <SettingsApiDataDetails />;
-    }
-
-    if (slug.length === 2 && slug[0] === "settings" && slug[1] === "user-information") {
-      return <SettingsUserInformationDetails />;
-    }
-
-    if (slug.length === 3 && slug[0] === "settings" && slug[1] === "connections") {
-      const itemId = slug[2];
-      return <SettingsConnectionDetails itemId={itemId} />;
-    }
-
-    notFound();
+  if (slug === "settings-user-data") {
+    return <SettingsUserDataDetails />;
   }
 
-  // Handle single-level routes
+  if (slug === "settings-api-data") {
+    return <SettingsApiDataDetails />;
+  }
+
+  if (slug === "settings-user-information") {
+    return <SettingsUserInformationDetails />;
+  }
+
+  if (slug === "settings-connections") {
+    const { itemId } = await searchParams;
+    const resolvedItemId = Array.isArray(itemId) ? itemId[0] : itemId;
+
+    if (!resolvedItemId) {
+      notFound();
+    }
+
+    return <SettingsConnectionDetails itemId={resolvedItemId} />;
+  }
+
   const Route = routes[slug as Slug];
 
   if (!Route) {
