@@ -19,9 +19,9 @@ import {
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useSWRConfig } from "swr";
-import { InstitutionLogo } from "@/app/components/institution-logo";
+import { InstitutionLogo } from "@/app/components/ui/institution-logo";
 import {
   CardPanel,
   CardPanelBody,
@@ -48,7 +48,7 @@ import {
   useProfileImageDataUrl,
   useProfileName,
 } from "@/app/lib/profile-client";
-import { useCachedApi } from "@/app/lib/use-cached-api";
+import { fetchCachedApiJson, useCachedApi } from "@/app/lib/cached-api";
 
 type RawPluggyAccount = {
   name?: string;
@@ -155,6 +155,7 @@ export function Settings() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [isConnectionModalOpen, setIsConnectionModalOpen] = useState(false);
   const [showClientSecret, setShowClientSecret] = useState(false);
+  const prefetchedRequestKeysRef = useRef<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const profileImageInputRef = useRef<HTMLInputElement | null>(null);
   const profileImageDataUrl = useProfileImageDataUrl();
@@ -189,6 +190,28 @@ export function Settings() {
   const visibleName = isEditingName ? draftName : savedName;
   const profileNameForInitials = isEditingName ? trimmedDraftName : trimmedSavedName;
   const profileInitials = createProfileInitials(profileNameForInitials || fallbackName);
+
+  useEffect(() => {
+    const keysToPrefetch = ["/api?endpoint=user-information"];
+
+    for (const connection of connections) {
+      keysToPrefetch.push(`/api?endpoint=connections&itemId=${encodeURIComponent(connection.itemId)}`);
+    }
+
+    const pendingKeys = keysToPrefetch.filter((key) => !prefetchedRequestKeysRef.current.has(key));
+
+    if (!pendingKeys.length) {
+      return;
+    }
+
+    for (const key of pendingKeys) {
+      prefetchedRequestKeysRef.current.add(key);
+      void mutate(key, fetchCachedApiJson(key), {
+        populateCache: true,
+        revalidate: false,
+      });
+    }
+  }, [connections, mutate]);
 
   function handleNameSave() {
     if (!hasNameChanges) {

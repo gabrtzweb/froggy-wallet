@@ -3,7 +3,7 @@
 import { CreditCard, Landmark, TrendingUp, Wallet } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
-import { InstitutionLogo } from "@/app/components/institution-logo";
+import { InstitutionLogo } from "@/app/components/ui/institution-logo";
 import { DetailPageHeader } from "@/app/components/ui/detail-page-header";
 import {
   CardPanel,
@@ -12,7 +12,7 @@ import {
   CardPanelKicker,
 } from "@/app/components/ui/card-panel";
 import { resolveInstitutionIdentity } from "@/app/lib/institution-utils";
-import { useCachedApi } from "@/app/lib/use-cached-api";
+import { useCachedApi } from "@/app/lib/cached-api";
 
 type ConnectionAccount = {
   id?: string;

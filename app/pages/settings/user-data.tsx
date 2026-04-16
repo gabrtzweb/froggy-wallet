@@ -11,7 +11,7 @@ import {
 } from "@/app/components/ui/card-panel";
 import { DetailPageHeader } from "@/app/components/ui/detail-page-header";
 import { LOCAL_DATA_UPDATED_EVENT, readAppLocalDataFromStorage } from "@/app/lib/local-data";
-import { PROFILE_UPDATED_EVENT } from "@/app/lib/profile-storage";
+import { PROFILE_UPDATED_EVENT } from "@/app/lib/profile-client";
 
 export function SettingsUserDataDetails() {
   const t = useTranslations("settings");

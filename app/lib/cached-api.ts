@@ -1,8 +1,8 @@
 "use client";
 
 import useSWR, { type SWRConfiguration } from "swr";
+import { useGlobalPageLoading } from "@/app/components/page-loading";
 import { BYOK_STORAGE_KEY } from "@/app/lib/local-data";
-import { useGlobalPageLoading } from "@/app/lib/page-loading";
 
 type UseCachedApiResult<T> = {
   data: T | undefined;
@@ -46,6 +46,8 @@ async function fetchJson<T>(url: string): Promise<T> {
 
   return payload as T;
 }
+
+export { fetchJson as fetchCachedApiJson };
 
 export function useCachedApi<T>(
   key: string | null,

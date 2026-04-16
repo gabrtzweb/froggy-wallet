@@ -4,7 +4,7 @@ import { ArrowRight, LayoutDashboard, Lock, RefreshCw, Zap } from "lucide-react"
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useRef } from "react";
-import { InstitutionLogo } from "@/app/components/institution-logo";
+import { InstitutionLogo } from "@/app/components/ui/institution-logo";
 import { resolveInstitutionIdentity } from "@/app/lib/institution-utils";
 
 export default function Page() {

@@ -12,7 +12,7 @@ import {
 } from "@/app/components/ui/card-panel";
 import { DetailPageHeader } from "@/app/components/ui/detail-page-header";
 import { createProfileInitials, useProfileImageDataUrl, useProfileName } from "@/app/lib/profile-client";
-import { useCachedApi } from "@/app/lib/use-cached-api";
+import { useCachedApi } from "@/app/lib/cached-api";
 
 type UserInformationResponse = {
   fullName: string | null;

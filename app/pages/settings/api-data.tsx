@@ -10,7 +10,7 @@ import {
   CardPanelKicker,
 } from "@/app/components/ui/card-panel";
 import { DetailPageHeader } from "@/app/components/ui/detail-page-header";
-import { useCachedApi } from "@/app/lib/use-cached-api";
+import { useCachedApi } from "@/app/lib/cached-api";
 
 type ApiConnectionsResponse = {
   [key: string]: unknown;

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { SWRConfig } from "swr";
-import { PageLoadingProvider } from "@/app/lib/page-loading";
+import { PageLoadingProvider } from "@/app/components/page-loading";
 import { syncByokCookieFromStorage } from "@/app/lib/local-data";
 
 const defaultSWRConfig = {
